@@ -1,0 +1,97 @@
+programa prueba;
+variables entero i, b;
+flotante z;
+lista entero[10] d;
+texto ob;
+pantalla(800,800);
+figuras
+    cuadrado miCaja{
+      medida : 10,
+      friccion: 0.5,
+      masa: 10.0,
+      rebote: 0.4,
+      movible: falso,
+      color: amarillo
+    },
+    triangulo miCaja2{
+        friccion: 0.5,
+        masa: 10.0,
+        rebote: 0.4,
+        movible: falso
+    };
+gravedad(10,10);
+funciones
+entero assd(entero i, flotante j){
+    variables
+        entero iS;
+        lista texto[10] iP;
+    asd = [10,10,10,10,10];
+    asd = verdadero;
+    asd = "asdasd";
+    asd += 10;
+    asd -= 5;
+    asd = 10 < 20;
+    si(10 < 20){
+        imprimir("asdasd");
+    }siNo{
+    imprimir("asdasd");
+    imprimir("asdasd");
+    };
+}
+apolo{
+    asd = verdadero;
+    asd = "asdasd";
+    asd += 10;
+    asd -= 5;
+    asd = 10 < 20;
+    si(10 < 20){
+        imprimir("asdasd");
+        si(10 < 20){
+            imprimir("asdasd");
+            si(10 < 20){
+                imprimir("asdasd");
+            }siNo{
+                imprimir("asdasd");
+                imprimir("asdasd");
+
+                asd = verdadero;
+                asd = "asdasd";
+                asd += 10;
+                asd -= 5;
+                asd = 10 < 20;
+            };
+        }siNo{
+            imprimir("asdasd");
+            imprimir("asdasd");
+
+            asd = verdadero;
+            asd = "asdasd";
+            asd += 10;
+            asd -= 5;
+            asd = 10 < 20;
+            si(10*121 < 20-0.0){
+                imprimir("asdasd");
+            }siNo{
+                imprimir("asdasd");
+                imprimir("asdasd");
+
+                asd = verdadero;
+                asd = "asdasd";
+                asd += 10;
+                asd -= 5;
+                asd = 10 < 20;
+            };
+        };
+    }siNo{
+        imprimir("asdasd");
+        imprimir("asdasd");
+
+        asd = verdadero;
+        asd = "asdasd";
+        asd += 10 + 2;
+        asd -= 5;
+        asd = 10 < 20;
+    };
+    dibujar(asd, 1,2);
+    dibujarLinea(asd,-1.0,-2,+3,4);
+  }

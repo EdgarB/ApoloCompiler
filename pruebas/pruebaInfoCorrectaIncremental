@@ -1,0 +1,63 @@
+programa prueba;
+variables entero entGlobal1, entGlobal2;
+flotante fGlobal1;
+lista entero[10] liEntGlobal1;
+texto tGlobal1;
+booleano bGlobal1;
+pantalla(800,800);
+figuras
+    cuadrado miCaja{
+      medida : 10,
+      friccion: 0.5,
+      masa: 10.0,
+      rebote: 0.4,
+      movible: falso,
+      color: amarillo
+    },
+    triangulo miTriangulo{
+        friccion: 0.5,
+        masa: 10.0,
+        rebote: 0.4,
+        movible: falso
+    },
+    linea miLinea{
+        friccion: 1.0,
+        masa: 10.0,
+        rebote: 0.4,
+        movible: falso
+    };
+gravedad(10,10);
+funciones
+entero assd(entero i, flotante j){
+    variables
+        entero iS;
+        texto tAux;
+        booleano bAux;
+        lista entero[10] liE;
+
+    bAux = verdadero;
+    tAux = "asdasd";
+
+}
+apolo{
+    bGlobal1 = verdadero;
+    tGlobal1 = "asdasd";
+    bGlobal1 = 10 < 20;
+
+    bGlobal1 = verdadero;
+    tGlobal1 = "asdasd";
+
+    bGlobal1 = 10 < 20;
+
+    bGlobal1 = verdadero;
+    tGlobal1 = "asdasd";
+
+    bGlobal1 = 10 < 20;
+    bGlobal1 = 0*121 < 20-0.0
+
+    bGlobal1 = verdadero;
+    tGlobal1 = "asdasd";
+
+    bGlobal1 = 10 < 20;
+
+  }
