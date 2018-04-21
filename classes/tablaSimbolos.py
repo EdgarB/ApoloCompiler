@@ -37,11 +37,12 @@ class Simbolo:
         print("")
 
 class SimboloVariable(Simbolo):
-    def __init__(self, nombre, tipo, indice):
+    def __init__(self, nombre, tipo, indice,longitud):
         self.nombre =  nombre;
         self.tipo = tipo;
         self.valor = None;
         self.dirMem = indice;
+        self.dim = longitud;
     def imprimir(self):
         if(self.nombre is not None):
             print("nombre: " + self.nombre);

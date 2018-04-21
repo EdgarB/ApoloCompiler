@@ -131,7 +131,7 @@ def t_CTE_I(t):
 def t_CTE_STRING(t):
     r'\".*\"'
     t.value = str(t.value)
-    print(t.value);
+    #print(t.value);
     return t
 
 
@@ -193,7 +193,7 @@ def t_MINUS_OP(t):
     r'\-'
     global operadorActual
     operadorActual = t.value;
-    print(operadorActual);
+    #print(operadorActual);
     return t;
 
 def t_TIMES_OP(t):
@@ -212,7 +212,7 @@ def t_ASSIGN_OP(t):
     r'\='
     global operadorActual;
     operadorActual = t.value;
-    print(operadorActual);
+    #print(operadorActual);
     return t;
 
 def t_BIGGER_THAN(t):
@@ -233,7 +233,7 @@ def t_LESS_THAN(t):
 # Define a rule so we can track line numbers
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += len(t.value)
+    t.lexer.lineno += 1;
 
 # Error handling rule
 def t_error(t):
@@ -288,14 +288,26 @@ tablaMemCte = OrderedDict();
 #DIRECCIONS MEMORIA
 # 1000 - 20999 -> Global
 indiceGlobal = 1000;
+limMemGlobal = 20999;
 # 21000 - 40999 -> Local
 indiceLocal = 21000;
+limMemLocal = 40999;
 # 41000 - 60999 -> Temporal
 indiceTemporal = 41000;
+limMemTemporal = 60999;
 # 61000 - 80999 -> CTE
 indiceCTE = 61000;
+limMemCTE = 80999;
 # 81000 - 100999
 indiceFigura = 81000;
+limMemFigura = 100999;
+
+
+
+#LISTAS
+contadorIndice = 0;
+
+longLista = 0;
 
 traductorValoresCubo = {
   0 :  "error",
@@ -473,30 +485,38 @@ def imprimirError(error, linea):
     elif(error == 1):
         print("Funcion " + idActual + " llamada en " + alcanceActual + " no fue declarada previamente.");
     elif(error == 2):
-        print("Redeficion de la figura " + idActual);
+        print("Redeficion de la figura " + idActual + ".");
     elif(error == 3):
-        print("Atributo repetido en la figura " + idActual);
+        print("Atributo repetido en la figura " + idActual + ".");
     elif(error == 4):
         #Error: El atributo escrito no es un atributo valido en la definicion de la figura
-        print("Atributo inexistente en la figura " + idActual);
+        print("Atributo inexistente en la figura " + idActual + ".");
     elif(error == 5):
         print("Figura " + idActual + " inexistente.");
     elif(error == 6):
         print("Operacion entre operandos no compatible.");
     elif(error == 7):
-        print("Los valores a utilizar dentro de la funcion PANTALLA deben ser numeros solamente");
+        print("Los valores a utilizar dentro de la funcion PANTALLA deben ser numeros solamente.");
     elif(error == 8):
-        print("dibujar solo acepta figuras que no sean de tipo linea");
+        print("dibujar solo acepta figuras que no sean de tipo linea.");
     elif(error == 9):
-        print("dibujarLinea solo acepta figuras que sean de tipo linea");
+        print("dibujarLinea solo acepta figuras que sean de tipo linea.");
     elif(error == 10):
         print("Los tipos de datos no coinciden.");
     elif(error == 11):
          #Error cantidad de parametros en llamada a funcion no coinciden
-         print("Cantidad de parametros en llamada a funcion no coincide con su declaracion");
+         print("Cantidad de parametros en llamada a funcion no coincide con su declaracion.");
     elif(error == 12):
         #Error retorno en funcion VOID
-        print("Estatuto retorno definido en funcion de tipo VOID");
+        print("Estatuto retorno definido en funcion de tipo VOID.");
+    elif(error == 13):
+        print("Indice fuera de rango.");
+    elif(error == 14):
+        print("Variable " + idActual + " redefinida en la declaracion de los parametros de la funcion " + alcanceActual + ".");
+    elif(error == 15):
+        print("Variable " + idActual + " declarada en " + alcanceActual + " redefinida.");
+    elif(error == 16):
+        print("Limite de memoria alcanzado");
 # checarDefFunc
 #   Descripcion: Checa que el nombre de la funcion recien declarada no haya sido
 #       declarado anteriormente en la tabla de funciones global
@@ -553,7 +573,7 @@ def checarDefParamFunc():
     simboloFunc = tablaDeSimbolos.obtener(alcanceActual);
     if simboloFunc == None :
         #error
-        print("");
+        imprimirError(1,None);
     else:
         vTemp = simboloFunc.parametros;
         for x in vTemp:
@@ -587,6 +607,36 @@ def imprimirContenidoTablaSimbolos(tablaSimb):
         print("\n");
     print("**************************************************************");
 
+def obtenerContSimb(id):
+    global tablaDeSimbolos;
+    global alcanceActual;
+    simbFunAct = tablaDeSimbolos.obtener(alcanceActual);
+    if(simbFunAct != None):
+        if(simbFunAct.tablaVariables != None):
+            simbVar = simbFunAct.tablaVariables.obtener(id);
+            if(simbVar != None):
+                return simbVar;
+            else:
+                simbFunAct = tablaDeSimbolos.obtener("global");
+                if(simbFunAct.tablaVariables != None):
+                    simbVar = simbFunAct.tablaVariables.obtener(id);
+                    return simbVar;
+                else:
+                    return None;
+        else:
+            simbFunAct = tablaDeSimbolos.obtener("global");
+            if(simbFunAct.tablaVariables != None):
+                simbVar = simbFunAct.tablaVariables.obtener(id);
+                return simbVar;
+            else:
+                return None;
+    else:
+        simbFunAct = tablaDeSimbolos.obtener("global");
+        if(simbFunAct.tablaVariables != None):
+            simbVar = simbFunAct.tablaVariables.obtener(id);
+            return simbVar;
+        else:
+            return None;
 ################################################################################
 ################################################################################
 
@@ -594,7 +644,7 @@ def imprimirContenidoTablaSimbolos(tablaSimb):
 
 def p_programa(t):
     '''
-        programa : PROGRAMA creaTablaFunc  ID agregaGlobalTabla  SEMICOLON variablesAuxiliar pantallaAuxiliar figurasAuxiliar gravedadAuxiliar funcionesAuxiliar apoloAuxiliar
+        programa : PROGRAMA creaTablaFunc  ID agregaGlobalTabla  SEMICOLON variablesAuxiliar pantallaAuxiliar figurasAuxiliar gravedadAuxiliar agregarGoToApolo funcionesAuxiliar apoloAuxiliar
         '''
     global tablaDeSimbolos;
     global listaDeCuadruplos;
@@ -669,7 +719,7 @@ def p_agregarIdHaciaPilas(t):
         varAux2 = varAux.tablaVariables.obtener(idActual);
         if(varAux2 is not None):
             #Variable es global
-            print(idActual + " : " + str(varAux2.valor));
+            #print(idActual + " : " + str(varAux2.valor));
             pilaOperandos.push(varAux2.dirMem);
             pilaTipos.push(varAux2.tipo);
     else:
@@ -680,12 +730,12 @@ def p_agregarIdHaciaPilas(t):
             if(varAux2 is not None):
                 pilaOperandos.push(varAux2.dirMem);
                 pilaTipos.push(varAux2.tipo);
-                print(idActual + " : " +str(varAux2.nombre));
+                #print(idActual + " : " +str(varAux2.nombre));
         else:
             varTemp2 = varTemp2.obtener(idActual);
             pilaOperandos.push(varTemp2.dirMem);
             pilaTipos.push(varTemp2.tipo);
-            print(idActual + " : " + str(varTemp2.nombre));
+            #print(idActual + " : " + str(varTemp2.nombre));
 
 # Punto 2 y 3 y 8
 def p_agregarOperador(t):
@@ -723,7 +773,7 @@ def p_agregarOperador(t):
         pilaOperadores.push('=');
     """
     pilaOperadores.push(operadorActual);
-    print("--PILA OPERADORE-- ",  pilaOperadores.items);
+    #print("--PILA OPERADORE-- ",  pilaOperadores.items);
 
 # Punto 4
 def p_compSemMasMenosYGenCuad(t):
@@ -738,7 +788,7 @@ def p_compSemMasMenosYGenCuad(t):
     global listaDeCuadruplos;
     global contadorCuadruplos;
     global indiceTemporal;
-
+    global liMemTemporal;
     varTemp =  pilaOperadores.top();
     if(varTemp is not None and (varTemp == '+' or varTemp == '-')):
 
@@ -761,17 +811,19 @@ def p_compSemMasMenosYGenCuad(t):
         #print("MAS MENOS : " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
         #print("MAS MENOS: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
         if(tipoResultado != 0):
+            if(indiceTemporal < limMemTemporal):
+                cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
 
-            cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
-            indiceTemporal += 1;
 
-            listaDeCuadruplos.append(cuadruplo);
-            pilaOperandos.push(indiceTemporal);
-            tipoResultado = traductorValoresCubo[tipoResultado];
-            pilaTipos.push(tipoResultado);
+                listaDeCuadruplos.append(cuadruplo);
+                pilaOperandos.push(indiceTemporal);
+                tipoResultado = traductorValoresCubo[tipoResultado];
+                pilaTipos.push(tipoResultado);
 
-            indiceTemporal += 1;
-            contadorCuadruplos += 1;
+                indiceTemporal += 1;
+                contadorCuadruplos += 1;
+            else:
+                imprimirError(16, None);
 
         else:
 
@@ -790,7 +842,7 @@ def p_comprobarSemanticaPorEntre(t):
     global listaDeCuadruplos;
     global contadorCuadruplos;
     global indiceTemporal;
-
+    global liMemTemporal;
     varTemp = pilaOperadores.top();
     if(varTemp is not None and (varTemp == '*' or varTemp == '/')):
         operandoDerecho = pilaOperandos.top();
@@ -812,17 +864,19 @@ def p_comprobarSemanticaPorEntre(t):
         #print("POR ENTRE : " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
         #print("POR ENTRE: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
         if(tipoResultado != 0):
+            if(indiceTemporal < limMemTemporal):
+                cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
 
-            cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
 
+                listaDeCuadruplos.append(cuadruplo);
+                pilaOperandos.push(indiceTemporal);
+                tipoResultado = traductorValoresCubo[tipoResultado];
+                pilaTipos.push(tipoResultado);
 
-            listaDeCuadruplos.append(cuadruplo);
-            pilaOperandos.push(indiceTemporal);
-            tipoResultado = traductorValoresCubo[tipoResultado];
-            pilaTipos.push(tipoResultado);
-
-            indiceTemporal += 1;
-            contadorCuadruplos += 1;
+                indiceTemporal += 1;
+                contadorCuadruplos += 1;
+            else:
+                imprimirError(16,None);
 
         else:
 
@@ -862,6 +916,7 @@ def p_comprobarSemanticaOperadoresRelacionales(t):
     global listaDeCuadruplos;
     global contadorCuadruplos;
     global indiceTemporal;
+    global liMemTemporal;
     varTemp = pilaOperadores.top();
 
     if(varTemp is not None and (varTemp == '>' or varTemp == '<' or varTemp == '<=' or varTemp == '>=' or varTemp == '!=' or varTemp == '==')):
@@ -880,20 +935,26 @@ def p_comprobarSemanticaOperadoresRelacionales(t):
 
         operador = pilaOperadores.top();
         pilaOperadores.pop();
-        tipoResultado = cuboSemantico[traductorIndicesOperandosCubo[tipoIzquierdo]][traductorIndicesOperandosCubo[tipoDerecho]][traductorIndicesOperadoresCubo[operador]]
+
+        ind1 = traductorIndicesOperandosCubo[tipoIzquierdo];
+        ind2 = traductorIndicesOperandosCubo[tipoDerecho];
+        ind3 = traductorIndicesOperadoresCubo[operador];
+        tipoResultado = cuboSemantico[ind1][ind2][ind3];
         #print("RELACIONALES : " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
         #print("RELACIONALES: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
         if(tipoResultado != 0):
+            if(indiceTemporal < limMemTemporal):
+                cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
 
-            cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
+                listaDeCuadruplos.append(cuadruplo);
+                pilaOperandos.push(indiceTemporal);
+                tipoResultado = traductorValoresCubo[tipoResultado];
+                pilaTipos.push(tipoResultado);
 
-            listaDeCuadruplos.append(cuadruplo);
-            pilaOperandos.push(indiceTemporal);
-            tipoResultado = traductorValoresCubo[tipoResultado];
-            pilaTipos.push(tipoResultado);
-
-            indiceTemporal += 1;
-            contadorCuadruplos += 1;
+                indiceTemporal += 1;
+                contadorCuadruplos += 1;
+            else:
+                imprimirError(16, None);
 
         else:
             imprimirError(6, t.lineno(1));
@@ -911,6 +972,7 @@ def p_compSemYGenCuadYO(t):
     global listaDeCuadruplos;
     global contadorCuadruplos;
     global indiceTemporal;
+    global liMemTemporal;
     varTemp = pilaOperadores.top();
 
     if(varTemp is not None and (varTemp == '&&' or varTemp == '||')):
@@ -933,15 +995,17 @@ def p_compSemYGenCuadYO(t):
         #print("AND OR : " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
         #print("AND OR: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
         if(tipoResultado != 0):
-            resultado = memRegistros.getNext();
-            cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
-            indiceTemporal += 1;
-            listaDeCuadruplos.append(cuadruplo);
-            pilaOperandos.push(resultado);
-            tipoResultado = traductorValoresCubo[tipoResultado];
-            pilaTipos.push(tipoResultado);
+            if(indiceTemporal < limMemTemporal):
+                cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
+                indiceTemporal += 1;
+                listaDeCuadruplos.append(cuadruplo);
+                pilaOperandos.push(resultado);
+                tipoResultado = traductorValoresCubo[tipoResultado];
+                pilaTipos.push(tipoResultado);
 
-            contadorCuadruplos += 1;
+                contadorCuadruplos += 1;
+            else:
+                imprimirError(16, None);
         else:
             imprimirError(6, t.lineno(1));
 
@@ -960,15 +1024,19 @@ def p_agregarOperando(t):
     global pilaTipos;
     global tablaMemCte;
     global indiceCTE;
+    global limMemCTE;
 
     if(isinstance(valorActual, bool)):
         pilaTipos.push("bool");
         if(valorActual in tablaMemCte):
             pilaOperandos.push(tablaMemCte[valorActual]);
         else:
-            pilaOperandos.push(indiceCTE);
-            tablaMemCte[valorActual] = indiceCTE;
-            indiceCTE += 1;
+            if(indiceCTE < limMemCTE):
+                pilaOperandos.push(indiceCTE);
+                tablaMemCte[valorActual] = indiceCTE;
+                indiceCTE += 1;
+            else:
+                imprimirError(16, None);
 
 
 
@@ -978,20 +1046,16 @@ def p_agregarOperando(t):
         if(valorActual in tablaMemCte):
             pilaOperandos.push(tablaMemCte[valorActual]);
         else:
-            pilaOperandos.push(indiceCTE);
-            tablaMemCte[valorActual] = indiceCTE;
-            indiceCTE += 1;
+            if(indiceCTE < limMemCTE):
+                pilaOperandos.push(indiceCTE);
+                tablaMemCte[valorActual] = indiceCTE;
+                indiceCTE += 1;
+            else:
+                imprimirError(16, None);
     else:
         print("tipo: " + str(type(valorActual)));
 
-def p_agregarlistaAPilaOperando(t):
-    '''
-    agregarlistaAPilaOperando : empty
-    '''
-    global pilaOperandos;
-    global pilaTipos;
-    pilaOperandos.push([]);
-    pilaTipos.push("lista int");
+
 #4
 def p_agregarCuadYCompSemAsignacion(t):
     '''
@@ -1007,6 +1071,8 @@ def p_agregarCuadYCompSemAsignacion(t):
     global traductorIndicesOperandosCubo;
     global traductorIndicesOperadoresCubo;
     global alcanceActual;
+    global indiceTemporal;
+    global liMemTemporal;
     #print("ASIGNACION");
     #print(pilaTipos.items);
     #print(pilaOperandos.items);
@@ -1015,7 +1081,7 @@ def p_agregarCuadYCompSemAsignacion(t):
     #print("ENDASIGNACION");
     varOpTop = pilaOperadores.top();
     if(varOpTop == '=' or varOpTop == '+=' or varOpTop == '-='):
-        print("entro igual");
+        #print("entro igual");
         operandoDerecho = pilaOperandos.top();
         pilaOperandos.pop();
 
@@ -1030,13 +1096,41 @@ def p_agregarCuadYCompSemAsignacion(t):
 
         operador = pilaOperadores.top();
         pilaOperadores.pop();
-        print("ASIGNACION: " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
-        print("ASIGNACION: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
+
+
+        #print("ASIGNACION: " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
+        #print("ASIGNACION: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
         tipoResultado = cuboSemantico[traductorIndicesOperandosCubo[tipoIzquierdo]][traductorIndicesOperandosCubo[tipoDerecho]][traductorIndicesOperadoresCubo[operador]];
 
         if(tipoResultado != 0):
             #print("wooo");
-            cuadruplo = [operador, operandoDerecho, None, operandoIzquierdo];
+
+            if(tipoIzquierdo == "integer" or tipoIzquierdo == "int" or tipoIzquierdo == "entero"):
+                if(indiceTemporal < limMemTemporal):
+
+                    cuad = ["cast", operandoDerecho, "int", indiceTemporal];
+                    listaDeCuadruplos.append(cuad);
+
+                    cuadruplo = [operador, indiceTemporal, None, operandoIzquierdo];
+
+                    contadorCuadruplos += 1;
+                    indiceTemporal += 1;
+                else:
+                    imprimirError(16, None);
+            elif(tipoIzquierdo == "float" or  tipoIzquierdo == "flotante"):
+                if(indiceTemporal < limMemTemporal):
+                    cuad = ["cast", operandoDerecho, "float", indiceTemporal];
+                    listaDeCuadruplos.append(cuad);
+
+                    cuadruplo = [operador, indiceTemporal, None, operandoIzquierdo];
+
+                    contadorCuadruplos += 1;
+                    indiceTemporal += 1;
+                else:
+                    imprimirError(16, None);
+            else:
+                cuadruplo = [operador, operandoDerecho, None, operandoIzquierdo];
+
             listaDeCuadruplos.append(cuadruplo);
             contadorCuadruplos += 1;
 
@@ -1145,7 +1239,7 @@ def p_agregarCuadEScrituraExpresion(t):
     global pilaTipos;
     global listaDeCuadruplos;
     global contadorCuadruplos;
-    print(pilaOperandos.items);
+    #(pilaOperandos.items);
     aux = pilaOperandos.top();
     pilaOperandos.pop();
     pilaTipos.pop();
@@ -1391,10 +1485,10 @@ def p_genCuadRetorno(t):
         tipoRes = pilaTipos.top();
         pilaTipos.pop();
         if(thisFunc.tipo == tipoRes):
-            #print(pilaOperandos.items);
+            #(pilaOperandos.items);
             resultado = pilaOperandos.top();
             pilaOperandos.pop();
-            #print("TIPO FUNCION -> " + str(tipoRes) + " - " + str(resultado));
+            #("TIPO FUNCION -> " + str(tipoRes) + " - " + str(resultado));
             cuad = ["return", resultado, None,None ];
             listaDeCuadruplos.append(cuad);
             contadorCuadruplos += 1;
@@ -1486,7 +1580,7 @@ def p_generarAccionParam(t):
     elif(argTipo != apuntadorFuncion.parametros[contadorParametros - 1][1]):
         #Error type missmatch
         imprimirError(10, None);
-        print("func - " + str(argTipo) + " = " + str(apuntadorFuncion.parametros[contadorParametros - 1][1]));
+        #print("func - " + str(argTipo) + " = " + str(apuntadorFuncion.parametros[contadorParametros - 1][1]));
     else:
         cuad = ["param", argumento, None, contadorParametros];
         listaDeCuadruplos.append(cuad);
@@ -1572,7 +1666,18 @@ def p_apoloTablaFunc(t):
 
     listaDeCuadruplos[indice].append(contadorCuadruplos);
 
+#agregargotoApolo
+def p_agregarGoToApolo(t):
+    '''
+        agregarGoToApolo : empty
+    '''
 
+    global listaDeCuadruplos;
+    global contadorCuadruplos;
+    global pilaSaltosPendientes;
+    listaDeCuadruplos.append(["goto", "apolo", None]);
+    pilaSaltosPendientes.push(contadorCuadruplos);
+    contadorCuadruplos += 1;
 # creaTablaFunc
 #   Descripcion: Crea la tabla de simbolos global (Tabla de funciones)
 def p_creaTablaFunc(t):
@@ -1580,14 +1685,10 @@ def p_creaTablaFunc(t):
     creaTablaFunc : empty
   '''
   global tablaDeSimbolos;
-  global listaDeCuadruplos;
-  global contadorCuadruplos;
-  global pilaSaltosPendientes;
+
   tablaDeSimbolos = TablaSimbolos(None, "_global");
 
-  listaDeCuadruplos.append(["goto", "apolo", None]);
-  pilaSaltosPendientes.push(contadorCuadruplos);
-  contadorCuadruplos += 1;
+
 # agregaGlobalTabla:
 #   Descripcion: Agrega el registro para las variables globales en la tabla de
 #       funciones.
@@ -1634,8 +1735,9 @@ def p_creaTablaVar(t):
     simboloAlcance = tablaDeSimbolos.obtener(alcanceActual)
     if simboloAlcance == None :
         #Generar error funcion no existe
-        print("Error: ");
-        print("Funcion " + idActual + " inexistente" );
+        #print("Error: ");
+        #print("Funcion " + idActual + " inexistente" );
+        imprimirError(1, None);
     else: #Checa si esta siendo llamada y no siendo declarada la funcion
         #print("Se creo tabla " + alcanceActual);
         simboloAlcance.tablaVariables = TablaSimbolos(alcanceActual,"vars");
@@ -1668,27 +1770,68 @@ def p_agregaVarTabla(t):
     global contadorVariables;
     global indiceLocal;
     global indiceGlobal;
-
+    global longLista;
+    global limMemLocal;
+    global limMemGlobal;
     simboloFunc = tablaDeSimbolos.obtener(alcanceActual);
 
     if(simboloFunc == None):
-        print("simboloFuncion " + alcanceActual + " no existe")#error esa funcion no existe
+        #print("simboloFuncion " + alcanceActual + " no existe")#error esa funcion no existe
+        imprimirError(1, None);
     elif(simboloFunc.bCreaTabla):
         tablaVars = simboloFunc.tablaVariables
         if(tablaVars != None): #Debe de existir, si no algo hicimos mal en el codigo
             if(checarDefVar()):
-                print("Error: Variable " + idActual + " redefinida, cambiar nombre variable")#Ya esta definida la variable
+                imprimirError(15, None);
             elif(checarDefParamFunc()):
-                print("Error: Variable " + idActual + " redefinida en encabezado de los parametros, de la funcion " + alcanceActual )#Ya esta definida la variable
+                imprimirError(14, None); #Ya esta definida la variable
             else:
 
                 contadorVariables += 1;
                 if(alcanceActual == "global"):
-                    tablaVars.insertar(SimboloVariable(idActual,tipoActual,indiceGlobal));
-                    indiceGlobal += 1;
+                    temp = tipoActual.split();
+                    if(temp[0] == "lista"):
+                        if(indiceGlobal < limMemGlobal):
+                            simbVar = SimboloVariable(idActual,tipoActual,indiceGlobal, longLista);
+                            tablaVars.insertar(simbVar);
+                            indiceGlobal += longLista;
+                        else:
+                            imprimirError(16, None);
+
+
+                    else:
+                        if(indiceGlobal < limMemGlobal):
+                            simbVar = SimboloVariable(idActual,tipoActual,indiceGlobal, None);
+                            tablaVars.insertar(simbVar);
+                            indiceGlobal += 1;
+                        else:
+                            imprimirError(16, None);
+
+
+
+
                 else:
-                    tablaVars.insertar(SimboloVariable(idActual,tipoActual,indiceLocal));
-                    indiceLocal += 1;
+                    temp = tipoActual.split();
+                    if(temp[0] == "lista"):
+                        if(indiceLocal < limMemLocal):
+                            simbVar = SimboloVariable(idActual,tipoActual,indiceLocal, longLista);
+                            tablaVars.insertar(simbVar);
+                            indiceLocal += longLista;
+                        else:
+                            imprimirError(16, None);
+
+
+                    else:
+                        if(indiceLocal < limMemLocal):
+                            simbVar = SimboloVariable(idActual,tipoActual,indiceLocal, None);
+                            tablaVars.insertar(simbVar);
+                            indiceLocal += 1;
+                        else:
+                            imprimirError(16, None);
+
+
+
+
         else:
             print("Algo salio mal, checar que la regla para crear tabla de variables esta en las producciones correspondientes")
 
@@ -1717,19 +1860,33 @@ def p_agregaParamFunc(t):
     global tipoActual;
     global tablaDeSimbolos;
     global indiceLocal;
+    global limMemLocal;
 
     simboloFunc = tablaDeSimbolos.obtener(alcanceActual);
     if(simboloFunc == None):
-        print("")#Error funcion no existe
+        imprimirError(1, None);#Error funcion no existe
     elif(True is not checarDefParamFunc()):
         encabezadoParam = [idActual, tipoActual];
         simboloFunc.parametros.append(encabezadoParam);
         simboloFunc.cantParametros += 1;
-        simboloVar = SimboloVariable(idActual, tipoActual,indiceLocal);
-        indiceLocal += 1;
-        simboloFunc.tablaVariables.insertar(simboloVar);
+        temp = tipoActual.split();
+        if(temp[0] == "lista"):
+            if(indiceLocal < limMemLocal):
+                simbVar = SimboloVariable(idActual,tipoActual,indiceLocal, longLista);
+                simboloFunc.tablaVariables.insertar(simbVar);
+                indiceLocal += longLista;
+            else:
+                impmrimirError(16,None);
+        else:
+            if(indiceLocal < limMemLocal):
+                simbVar = SimboloVariable(idActual,tipoActual,indiceLocal, None);
+                simboloFunc.tablaVariables.insertar(simbVar);
+                indiceLocal += 1;
+            else:
+                imprimirError(16, None);
+
     else:
-        print("error: Redeficion de variable en " + alcanceActual + ", con la variable " + idActual)#error variable ya definida en parametros
+        imprimirError(15, None);#error variable ya definida en parametros
 
 def p_liberaTablaVars(t):
     '''
@@ -1744,7 +1901,7 @@ def p_liberaTablaVars(t):
     global indiceTemporal;
     simboloFunc = tablaDeSimbolos.obtener(alcanceActual);
     if(simboloFunc == None):
-        print("")#Error funcion no existe
+        imprimirError(1); #Error funcion no existe
     else:
         simboloFunc.tablaVariables = None;
         simboloFunc.cantVarLocales = contadorVariables;
@@ -1776,29 +1933,34 @@ def p_checarFiguraId(t):
         imprimirError(2, t.lineno(1));
 
 def p_creaFigVar(t):
-  '''
-  creaFigVar : empty
-  '''
-  global tablaDeSimbolos;
-  global idActual;
-  global medidaFigActual;
-  global friccionFigActual;
-  global masaFigActual;
-  global reboteFigActual;
-  global movibleFigActual;
-  global colorFigActual;
-  global indiceFigura;
-  if(not checarDefFigura()):
-      figura = SimboloFigura(idActual, tipoActual, medidaFigActual, friccionFigActual, masaFigActual, reboteFigActual, movibleFigActual, colorFigActual, indiceFigura);
-      indiceFigura += 1;
-      varsFigTabla = tablaDeSimbolos.obtener("_figuras").tablaVariables.insertar(figura)
+    '''
+    creaFigVar : empty
+    '''
+    global tablaDeSimbolos;
+    global idActual;
+    global medidaFigActual;
+    global friccionFigActual;
+    global masaFigActual;
+    global reboteFigActual;
+    global movibleFigActual;
+    global colorFigActual;
+    global indiceFigura;
+    global limMemFigura
+    if(not checarDefFigura()):
+        if(indiceFigura < limMemFigura):
+            figura = SimboloFigura(idActual, tipoActual, medidaFigActual, friccionFigActual, masaFigActual, reboteFigActual, movibleFigActual, colorFigActual, indiceFigura);
+            indiceFigura += 1;
+            varsFigTabla = tablaDeSimbolos.obtener("_figuras").tablaVariables.insertar(figura)
 
-  medidaFigActual = None;
-  friccionFigActual = None;
-  masaFigActual = None;
-  reboteFigActual = None;
-  movibleFigActual = None;
-  colorFigActual = None;
+
+            medidaFigActual = None;
+            friccionFigActual = None;
+            masaFigActual = None;
+            reboteFigActual = None;
+            movibleFigActual = None;
+            colorFigActual = None;
+        else:
+            imprimirError(16, None);
 
 #     VARIABLES     ############################################################
 def p_variables(t):
@@ -2075,13 +2237,13 @@ def p_incrementoAuxiliar1(t):
   '''
   global operadorActual;
   ### DEBUG: operador += no esta siendo agregado
-  print("OPERADOR INCREMENTO: " + t[1]);
+  #print("OPERADOR INCREMENTO: " + t[1]);
   operadorActual = t[1];
 
 #     ASIGNACION    ##########################################################
 def p_asignacion(t):
   '''
-  asignacion : ID checarDefID agregarIdHaciaPilas  ASSIGN_OP agregarOperadorAsignacion asignacionAuxiliar1 agregarCuadYCompSemAsignacion
+  asignacion : asignacionAuxiliar2   ASSIGN_OP agregarOperadorAsignacion asignacionAuxiliar1
   '''
   if(checarDefVar() is False):
       imprimirError(0, t.lineno(1));
@@ -2092,15 +2254,101 @@ def p_agregarOperadorAsignacion(t):
     '''
     global operadorActual;
     global pilaOperadores;
-    print("OPERADOR ASIGNACION!!!!!!!!!")
+    #print("OPERADOR ASIGNACION!!!!!!!!!")
     pilaOperadores.push('=');
-    print("WWWWWWWWWWWAAAAT");
+    #print("WWWWWWWWWWWAAAAT");
 def p_asignacionAuxiliar1(t):
   '''
-  asignacionAuxiliar1 : expresion
-  | lista_cte agregarlistaAPilaOperando
-  | sp_cte agregarOperando
+  asignacionAuxiliar1 : expresion agregarCuadYCompSemAsignacion
+  | lista_cte
+  | sp_cte agregarOperando agregarCuadYCompSemAsignacion
   '''
+def p_asignacionAuxiliar2(t):
+    '''
+    asignacionAuxiliar2 : ID checarDefID agregarIdHaciaPilas
+    | elemArr
+    '''
+#   LLAMADA ELEM ARREGLO ####################################################
+def p_elemArr (t):
+    '''
+    elemArr : ID checarDefID agregarIdHaciaPilas agregarLongLista L_BRACKETS exp R_BRACKETS agregarCuadsElemArr
+    '''
+
+def p_agregarCuadsElemArr(t):
+    '''
+    agregarCuadsElemArr : empty
+    '''
+    global pilaOperandos;
+    global pilaTipos;
+    global listaDeCuadruplos;
+    global contadorCuadruplos;
+    global indiceTemporal;
+    global longLista;
+    global tablaMemCte;
+    global indiceCTE;
+    global limMemCTE;
+    global liMemTemporal;
+    indice = pilaOperandos.top();
+    pilaOperandos.pop()
+
+    indiceTipo = pilaTipos.top();
+    pilaTipos.pop();
+
+    lista = pilaOperandos.top();
+    pilaOperandos.pop();
+
+
+
+    listaTipo = pilaTipos.top();
+    pilaTipos.pop();
+    print(str(listaTipo));
+    contTipo = listaTipo.split();
+    if(indiceTemporal < limMemTemporal):
+        cuad = ["cast", indice, "int",indiceTemporal];
+        indiceTemporal += 1;
+
+        listaDeCuadruplos.append(cuad);
+        contadorCuadruplos += 1;
+
+        cuad = ["ver", indiceTemporal - 1, 0, longLista - 1];
+        listaDeCuadruplos.append(cuad);
+        contadorCuadruplos += 1;
+
+        if(lista in tablaMemCte):
+            dirBLista = tablaMemCte[lista];
+        else:
+            if(indiceCTE < limMemCTE):
+                tablaMemCte[lista] = indiceCTE;
+                dirBLista = indiceCTE;
+
+                indiceCTE += 1;
+            else:
+                imprimirError(16, None);
+
+
+        cuad = ["+", dirBLista, indiceTemporal - 1, indiceTemporal];
+        indiceTemporal += 1;
+        listaDeCuadruplos.append(cuad);
+        contadorCuadruplos += 1;
+
+        dirLista = "(" + str(indiceTemporal - 1) + ")";
+        pilaOperandos.push(dirLista);
+        pilaTipos.push(contTipo[1]);
+    else:
+        imprimirError(16, None);
+
+def p_agregarLongLista(t):
+    '''
+    agregarLongLista : empty
+    '''
+    global idActual;
+    global longLista;
+    simbArr = obtenerContSimb(idActual);
+    longLista = simbArr.dim;
+
+
+
+
 
 #    ESCRITURA    ###########################################################
 def p_escritura(t):
@@ -2193,7 +2441,7 @@ def p_expresionAuxiliar4(t):
 def p_factor(t):
   '''
   factor : L_PAREN  agregarPisoFalso expresion R_PAREN eliminarPisoFalso
-  | factorAuxiliar1 factorAuxiliar2
+  | factorAuxiliar1 factorAuxiliar3 factorAuxiliar4
   | factorAuxiliar3
   '''
 
@@ -2204,6 +2452,7 @@ def p_factorAuxiliar1(t):
   | MINUS_OP
   '''
   global signoActual;
+
   signoActual = t[1];
 
 def p_factorAuxiliar2(t):
@@ -2217,20 +2466,20 @@ def p_factorAuxiliar2(t):
     global alcanceActual;
     global indiceCTE;
     global tablaMemCte;
-    if(signoActual is not None):
-        if(signoActual == '-'):
-            t[1] = t[1] * -1;
-
-        signoActual = None;
+    global limMemCTE;
 
 
 
     if(t[1] in tablaMemCte):
         pilaOperandos.push(tablaMemCte[t[1]]);
     else:
-        tablaMemCte[t[1]] = indiceCTE;
-        pilaOperandos.push(indiceCTE);
-        indiceCTE += 1;
+        if(indiceCTE < limMemCTE):
+
+            tablaMemCte[t[1]] = indiceCTE;
+            pilaOperandos.push(indiceCTE);
+            indiceCTE += 1;
+        else:
+            imprimirError(16, None);
 
 
 
@@ -2247,27 +2496,169 @@ def p_factorAuxiliar3(t):
     factorAuxiliar3 : factorAuxiliar2
     | ID checarDefID agregarIdHaciaPilas
     | llamada
+    | elemArr
     '''
+
+def p_factorAuxiliar4(t):
+    '''
+    factorAuxiliar4 : empty
+    '''
+    global signoActual;
+    global pilaOperandos;
+    global pilaTipos;
+    global alcanceActual;
+    global traductorValoresCubo;
+    global traductorIndicesOperandosCubo;
+    global traductorIndicesOperadoresCubo;
+    global cuboSemantico;
+    global listaDeCuadruplos;
+    global contadorCuadruplos;
+    global indiceTemporal;
+    global tablaMemCte;
+    global indiceCTE;
+    global limMemCTE;
+    global liMemTemporal;
+    if(signoActual != None and signoActual == "-"):
+        signoActual = None;
+        operandoDerecho = pilaOperandos.top();
+        pilaOperandos.pop();
+
+
+        tipoDerecho = pilaTipos.top();
+        pilaTipos.pop();
+
+
+        ind1 = traductorIndicesOperandosCubo["entero"];
+        ind2 = traductorIndicesOperandosCubo[tipoDerecho];
+        ind3 = traductorIndicesOperadoresCubo["*"]
+        returnType = cuboSemantico[ind1][ind2][ind3];
+        if(returnType != 0):
+            if(indiceTemporal < limMemTemporal):
+                if(-1  in tablaMemCte):
+                    cuad = ["*",tablaMemCte[-1], operandoDerecho, indiceTemporal];
+                else:
+                    if(indiceCTE < limMemCTE):
+                        cuad = ["*", indiceCTE, operandoDerecho, indiceTemporal];
+                        tablaMemCte[-1] = indiceCTE;
+                        indiceCTE += 1;
+                    else:
+                        imprimirError(16, None);
+
+
+                pilaOperandos.push(indiceTemporal);
+                pilaTipos.push(traductorValoresCubo[returnType]);
+                listaDeCuadruplos.append(cuad);
+                indiceTemporal += 1;
+                contadorCuadruplos += 1;
+            else:
+                imprimirError(16,None);
+        else:
+            imprimirError(10, None);
+
+
 
 #     LISTA CONSTANTE     ######################################################
 def p_lista_cte(t):
   '''
-  lista_cte : L_BRACKETS  lista_cteAuxiliar1 lista_cteAuxiliar2 R_BRACKETS
+  lista_cte : reiniciarContadorIndices L_BRACKETS  lista_cteAuxiliar1 comprobarTipoElem lista_cteAuxiliar2 R_BRACKETS p_sacarListaPilaOperandos
   '''
   t[0] = [];
 
 def p_lista_cteAuxiliar1(t):
   '''
   lista_cteAuxiliar1 : exp
-  | sp_cte
+  | sp_cte agregarOperando
   '''
 
 def p_lista_cteAuxiliar2(t):
   '''
-  lista_cteAuxiliar2 : COMMA lista_cteAuxiliar1 lista_cteAuxiliar2
+  lista_cteAuxiliar2 : COMMA comprobarIndices lista_cteAuxiliar1 comprobarTipoElem lista_cteAuxiliar2
   | empty
   '''
+def p_comprobarTipoElem(t):
+    '''
+    comprobarTipoElem : empty
+    '''
 
+    global pilaOperandos;
+    global pilaTipos;
+    global listaDeCuadruplos;
+    global contadorIndice;
+    global contadorCuadruplos;
+    global traductorIndicesOperandosCubo;
+
+    elem = pilaOperandos.top();
+    pilaOperandos.pop();
+
+    tipoElem = pilaTipos.top();
+    pilaTipos.pop();
+
+    lista = pilaOperandos.top();
+    tipoLista = pilaTipos.top();
+
+    temp = tipoLista.split();
+    listaTipoTrad = traductorIndicesOperandosCubo[temp[1]];
+    elemTipoTrad = traductorIndicesOperandosCubo[tipoElem];
+
+    if(listaTipoTrad != elemTipoTrad):
+        #No coinciden los tipos, ERROR!
+        #print(str(temp) + " - " + str(tipoElem));
+        imprimirError(10,None);
+    else:
+        #Coinciden los tipos
+        #Agregar cuadruplo
+        dir = lista + contadorIndice;
+        cuad = ["=", elem, None, dir];
+        listaDeCuadruplos.append(cuad);
+        contadorIndice += 1;
+        contadorCuadruplos += 1;
+
+def p_comprobarIndices(t):
+    '''
+    comprobarIndices : empty
+    '''
+    global contadorIndice;
+    global longLista;
+
+    if(contadorIndice >= longLista):
+        #print("Comprobando indices)
+        imprimirError(13, None);
+        #Error indice fuera de rango
+
+def p_reiniciarContadorIndices(t):
+    '''
+    reiniciarContadorIndices : empty
+    '''
+    global contadorIndice;
+    global pilaTipos;
+    global idActual;
+    global alcanceActual;
+    global tablaDeSimbolos;
+    global longLista;
+    temp = pilaTipos.top();
+    temp2 = temp.split();
+    if(temp2[0] != "lista"):
+        #error tipos no coinciden!
+        imprimirError(10,None);
+    else:
+        contadorIndice = 0;
+
+
+
+
+
+
+def p_sacarListaPilaOperandos(t):
+    '''
+    p_sacarListaPilaOperandos : empty
+    '''
+    global pilaOperandos;
+    global pilaTipos;
+    global pilaOperadores;
+
+    pilaOperadores.pop();
+    pilaOperandos.pop();
+    pilaTipos.pop();
 
 #     TIPO LISTA     ##########################################################
 
@@ -2275,8 +2666,11 @@ def p_tipo_lista(t):
   '''
   tipo_lista : LISTA listaVar tipo L_BRACKETS CTE_I R_BRACKETS
   '''
-  global tipoActual
+  global tipoActual;
+  global longLista;
+
   tipoActual = "lista " + tipoActual
+  longLista = t[5];
 
 
 #     TIPO      ###############################################################
@@ -2311,13 +2705,14 @@ def p_sp_cte(t):
   '''
   global valorActual;
   valorActual = t[1];
+  """
   if(valorActual is not True and valorActual is not False):
       print();
       print("**************************");
       print(valorActual);
       print("**************************");
-
-  print("t[1] = " + str(type(t[1])));
+  """
+  #print("t[1] = " + str(type(t[1])));
   t[0] = t[1];
 
 #     CONSTANTE BOOLEANA     ###################################################
