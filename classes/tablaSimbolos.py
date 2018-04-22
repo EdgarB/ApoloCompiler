@@ -83,9 +83,9 @@ class SimboloFigura(Simbolo):
 
     def imprimir(self):
         if(self.nombre is not None):
-            print("nombre: " + self.nombre)
+            print("nombre: " + str(self.nombre))
         if(self.tipo is not None):
-            print("tipo: " + self.tipo)
+            print("tipo: " + str(self.tipo))
         if(self.medida is not None):
             print("medida: " + str(self.medida))
         if(self.friccion is not None):
@@ -97,4 +97,4 @@ class SimboloFigura(Simbolo):
         if(self.movible is not None):
             print("movible: " + str(self.movible))
         if(self.color is not None):
-            print("color: " + self.color)
+            print("color: " + str(self.color))

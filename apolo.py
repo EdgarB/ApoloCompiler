@@ -611,10 +611,12 @@ def obtenerContSimb(id):
     global tablaDeSimbolos;
     global alcanceActual;
     simbFunAct = tablaDeSimbolos.obtener(alcanceActual);
+
     if(simbFunAct != None):
         if(simbFunAct.tablaVariables != None):
             simbVar = simbFunAct.tablaVariables.obtener(id);
             if(simbVar != None):
+
                 return simbVar;
             else:
                 simbFunAct = tablaDeSimbolos.obtener("global");
@@ -622,6 +624,7 @@ def obtenerContSimb(id):
                     simbVar = simbFunAct.tablaVariables.obtener(id);
                     return simbVar;
                 else:
+
                     return None;
         else:
             simbFunAct = tablaDeSimbolos.obtener("global");
@@ -629,6 +632,7 @@ def obtenerContSimb(id):
                 simbVar = simbFunAct.tablaVariables.obtener(id);
                 return simbVar;
             else:
+
                 return None;
     else:
         simbFunAct = tablaDeSimbolos.obtener("global");
@@ -636,6 +640,7 @@ def obtenerContSimb(id):
             simbVar = simbFunAct.tablaVariables.obtener(id);
             return simbVar;
         else:
+
             return None;
 ################################################################################
 ################################################################################
@@ -1052,8 +1057,8 @@ def p_agregarOperando(t):
                 indiceCTE += 1;
             else:
                 imprimirError(16, None);
-    else:
-        print("tipo: " + str(type(valorActual)));
+    #else:
+        #print("tipo: " + str(type(valorActual)));
 
 
 #4
@@ -1948,9 +1953,9 @@ def p_creaFigVar(t):
     global limMemFigura
     if(not checarDefFigura()):
         if(indiceFigura < limMemFigura):
-            figura = SimboloFigura(idActual, tipoActual, medidaFigActual, friccionFigActual, masaFigActual, reboteFigActual, movibleFigActual, colorFigActual, indiceFigura);
-            indiceFigura += 1;
-            varsFigTabla = tablaDeSimbolos.obtener("_figuras").tablaVariables.insertar(figura)
+            figura = SimboloFigura(idActual, tipoActual, medidaFigActual, friccionFigActual, masaFigActual, reboteFigActual, movibleFigActual, colorFigActual, indiceFigura );
+
+            varsFigTabla = tablaDeSimbolos.obtener("_figuras").tablaVariables.insertar(figura);
 
 
             medidaFigActual = None;
@@ -2063,17 +2068,17 @@ def p_funcionesAuxiliar4(t):
 #     FIGURAS     ##############################################################
 def p_figuras(t):
   '''
-  figuras : FIGURAS creaFigFuncSimb asignarAlcance figura ID checarFiguraId L_BRACES figura_atributos figura_atributosAuxiliar2 R_BRACES creaFigVar figurasAuxiliar1 SEMICOLON
+  figuras : FIGURAS creaFigFuncSimb  figura ID checarFiguraId L_BRACES figura_atributos figura_atributosAuxiliar2 R_BRACES creaFigVar creaCuadCrearFig figurasAuxiliar1 SEMICOLON
   '''
 
 def p_figurasAuxiliar1(t):
   '''
-  figurasAuxiliar1 : COMMA figura ID checarFiguraId L_BRACES figura_atributos figura_atributosAuxiliar2 R_BRACES creaFigVar figurasAuxiliar1
+  figurasAuxiliar1 : COMMA figura ID checarFiguraId L_BRACES figura_atributos figura_atributosAuxiliar2 R_BRACES creaFigVar creaCuadCrearFig figurasAuxiliar1
   | empty
   '''
 
 
-#     FIGURA     ###############################################################
+#     FIGURA     #
 def p_figura(t):
   '''
   figura : CUADRADO
@@ -2084,7 +2089,7 @@ def p_figura(t):
   global tipoActual
   tipoActual = t[1]
 
-#     FIGURA_ATRIBUTOS    ######################################################
+#     FIGURA_ATRIBUTOS    #
 def p_figura_atributos(t):
     '''
     figura_atributos : MEDIDA COLON CTE_I
@@ -2092,45 +2097,107 @@ def p_figura_atributos(t):
     | MOVIBLE COLON cte_bool
     | COLOR COLON color_cte
     '''
-    global medidaFigActual
-    global friccionFigActual
-    global masaFigActual
-    global reboteFigActual
-    global movibleFigActual
-    global colorFigActual
+    global medidaFigActual;
+    global friccionFigActual;
+    global masaFigActual;
+    global reboteFigActual;
+    global movibleFigActual;
+    global colorFigActual;
+    global indiceCTE;
+    global limMemCTE;
+    global tablaMemCte;
+
     if(t[1] == 'medida'):
         if(medidaFigActual == None):
-            medidaFigActual = t[3]
+
+            indice = t[3];
+            if(indice in tablaMemCte):
+                medidaFigActual = tablaMemCte[indice];
+            else:
+                if(indiceCTE < limMemCTE):
+                    tablaMemCte[indice] = indiceCTE;
+                    medidaFigActual = indiceCTE;
+                    indiceCTE += 1;
+                else:
+                    imprimirError(16, None);
         else:
             #Crashealo
             imprimirError(3, t.lineno(1));
     elif(t[1] == 'friccion'):
         if(friccionFigActual ==  None):
-            friccionFigActual = t[3]
+
+            indice = t[3];
+            if(indice in tablaMemCte):
+                friccionFigActual = tablaMemCte[indice];
+            else:
+                if(indiceCTE < limMemCTE):
+                    tablaMemCte[indice] = indiceCTE;
+                    friccionFigActual = indiceCTE;
+                    indiceCTE += 1;
+                else:
+                    imprimirError(16, None);
         else:
             #Crashealo
             imprimirError(3, t.lineno(1));
     elif(t[1] == 'masa'):
         if(masaFigActual == None):
-            masaFigActual = t[3]
+
+            indice = t[3];
+            if(indice in tablaMemCte):
+                masaFigActual = tablaMemCte[indice];
+            else:
+                if(indiceCTE < limMemCTE):
+                    tablaMemCte[indice] = indiceCTE;
+                    masaFigActual = indiceCTE;
+                    indiceCTE += 1;
+                else:
+                    imprimirError(16, None);
         else:
             #Crashealo
             imprimirError(3, t.lineno(1));
     elif(t[1] == 'rebote'):
         if(reboteFigActual == None):
-            reboteFigActual = t[3]
+            indice = t[3];
+            if(indice in tablaMemCte):
+                reboteFigActual = tablaMemCte[indice];
+            else:
+                if(indiceCTE < limMemCTE):
+                    tablaMemCte[indice] = indiceCTE;
+                    reboteFigActual = indiceCTE;
+                    indiceCTE += 1;
+                else:
+                    imprimirError(16, None);
         else:
             #Crashealo
             imprimirError(3, t.lineno(1));
     elif(t[1] == 'movible'):
         if(movibleFigActual == None):
-            movibleFigActual = t[3]
+
+            indice = t[3];
+            if(indice in tablaMemCte):
+                movibleFigActual = tablaMemCte[indice];
+            else:
+                if(indiceCTE < limMemCTE):
+                    tablaMemCte[indice] = indiceCTE;
+                    movibleFigActual = indiceCTE;
+                    indiceCTE += 1;
+                else:
+                    imprimirError(16, None);
         else:
             #Crashealo
             imprimirError(3, t.lineno(1));
     elif(t[1] == 'color'):
         if(colorFigActual == None):
-            colorFigActual = t[3]
+            indice = t[3];
+            if(indice in tablaMemCte):
+                colorFigActual = tablaMemCte[indice];
+            else:
+                if(indiceCTE < limMemCTE):
+                    tablaMemCte[indice] = indiceCTE;
+                    colorFigActual = indiceCTE;
+                    indiceCTE += 1;
+                else:
+                    imprimirError(16, None);
         else:
             #Crashealo
             imprimirError(3, t.lineno(1));
@@ -2150,6 +2217,174 @@ def p_figura_atributosAuxiliar2(t):
   figura_atributosAuxiliar2 : COMMA figura_atributos figura_atributosAuxiliar2
   | empty
   '''
+
+# Puntos neuralgicos
+def p_creaCuadCrearFig(t):
+    '''
+    creaCuadCrearFig : empty
+    '''
+    global pilaOperandos;
+    global pilaTipos;
+    global listaDeCuadruplos;
+    global contadorCuadruplos;
+    global indiceFigura;
+    global limMemFigura;
+    global idActual;
+    global indiceCTE;
+    global limMemCTE;
+    global tablaMemCte;
+
+    simbFig = obtenerContSimb(idActual);
+
+    if(simbFig != None):
+        if(indiceFigura + 7 < limMemFigura):
+            if(simbFig.tipo in tablaMemCte):
+
+                indice = tablaMemCte[simbFig.tipo];
+                cuad = ["=", indice, None, indiceFigura];
+                listaDeCuadruplos.append(cuad);
+            else:
+                if(indiceCTE < limMemCTE):
+                    tablaMemCte[simbFig.tipo] = indiceCTE;
+                    cuad = ["=", indiceCTE, None, indiceFigura];
+                    listaDeCuadruplos.append(cuad);
+                    indiceCTE += 1;
+                else:
+                    imprimirError(16, None);
+            if(simbFig.medida is None):
+
+
+                if(10 in tablaMemCte):
+
+                    indice = tablaMemCte[10];
+                    cuad = ["=", indice, None, indiceFigura + 1];
+                    listaDeCuadruplos.append(cuad);
+                else:
+                    if(indiceCTE < limMemCTE):
+                        tablaMemCte[10] = indiceCTE;
+                        cuad = ["=", indiceCTE, None, indiceFigura + 1];
+                        listaDeCuadruplos.append(cuad);
+                        indiceCTE += 1;
+                    else:
+                        imprimirError(16, None);
+            else:
+                cuad = ["=", simbFig.medida, None, indiceFigura + 1];
+                listaDeCuadruplos.append(cuad);
+
+
+
+
+            if(simbFig.friccion is None):
+
+
+                if(0.0 in tablaMemCte):
+
+                    indice = tablaMemCte[0.0];
+                    cuad = ["=", indice, None, indiceFigura + 2];
+                    listaDeCuadruplos.append(cuad);
+                else:
+                    if(indiceCTE < limMemCTE):
+                        tablaMemCte[0.0] = indiceCTE;
+                        cuad = ["=", indiceCTE, None, indiceFigura + 2];
+                        listaDeCuadruplos.append(cuad);
+                        indiceCTE += 1;
+                    else:
+                        imprimirError(16, None);
+            else:
+                cuad = ["=", simbFig.friccion, None, indiceFigura + 2];
+                listaDeCuadruplos.append(cuad);
+
+
+            if(simbFig.masa is None):
+
+
+                if(1.0 in tablaMemCte):
+
+                    indice = tablaMemCte[1.0];
+                    cuad = ["=", indice, None, indiceFigura + 3];
+                    listaDeCuadruplos.append(cuad);
+                else:
+                    if(indiceCTE < limMemCTE):
+                        tablaMemCte[1.0] = indiceCTE;
+                        cuad = ["=", indiceCTE, None, indiceFigura + 3];
+                        listaDeCuadruplos.append(cuad);
+                        indiceCTE += 1;
+                    else:
+                        imprimirError(16, None);
+            else:
+                cuad = ["=", simbFig.masa, None, indiceFigura + 3];
+                listaDeCuadruplos.append(cuad);
+
+
+            if(simbFig.rebote is None):
+
+
+                if(1.0 in tablaMemCte):
+
+                    indice = tablaMemCte[1.0];
+                    cuad = ["=", indice, None, indiceFigura + 4];
+                    listaDeCuadruplos.append(cuad);
+                else:
+                    if(indiceCTE < limMemCTE):
+                        tablaMemCte[1.0] = indiceCTE;
+                        cuad = ["=", indiceCTE, None, indiceFigura + 4];
+                        listaDeCuadruplos.append(cuad);
+                        indiceCTE += 1;
+                    else:
+                        imprimirError(16, None);
+            else:
+                cuad = ["=", simbFig.rebote, None, indiceFigura + 4];
+                listaDeCuadruplos.append(cuad);
+
+            if(simbFig.movible is None):
+
+
+                if("falso" in tablaMemCte):
+
+                    indice = tablaMemCte["falso"];
+                    cuad = ["=", indice, None, indiceFigura + 5];
+                    listaDeCuadruplos.append(cuad);
+                else:
+                    if(indiceCTE < limMemCTE):
+                        tablaMemCte["falso"] = indiceCTE;
+                        cuad = ["=", indiceCTE, None, indiceFigura + 5];
+                        listaDeCuadruplos.append(cuad);
+                        indiceCTE += 1;
+                    else:
+                        imprimirError(16, None);
+            else:
+                cuad = ["=", simbFig.movible, None, indiceFigura + 5];
+                listaDeCuadruplos.append(cuad);
+
+            if(simbFig.color is None):
+
+
+                if("rojo" in tablaMemCte):
+
+                    indice = tablaMemCte["rojo"];
+                    cuad = ["=", indice, None, indiceFigura + 6];
+                    listaDeCuadruplos.append(cuad);
+                else:
+                    if(indiceCTE < limMemCTE):
+                        tablaMemCte["rojo"] = indiceCTE;
+                        cuad = ["=", indiceCTE, None, indiceFigura + 6];
+                        listaDeCuadruplos.append(cuad);
+                        indiceCTE += 1;
+                    else:
+                        imprimirError(16, None);
+            else:
+                cuad = ["=", simbFig.rebote, None, indiceFigura + 6];
+                listaDeCuadruplos.append(cuad);
+
+            indiceFigura += 7;
+            contadorCuadruplos += 7;
+
+
+        else:
+            imprimirError(16, None);
+    #else:
+        #print("Debug: Simbolo figura es None hay algo mal aqui!");
+
 
 #     EXP    ###################################################################
 def p_exp(t):
@@ -2301,7 +2536,7 @@ def p_agregarCuadsElemArr(t):
 
     listaTipo = pilaTipos.top();
     pilaTipos.pop();
-    print(str(listaTipo));
+
     contTipo = listaTipo.split();
     if(indiceTemporal < limMemTemporal):
         cuad = ["cast", indice, "int",indiceTemporal];
@@ -2828,6 +3063,7 @@ if __name__ == '__main__':
 
     cuadsFile = open('cuad.o', 'w');
     for element in listaDeCuadruplos:
+
         cuadsFile.write(str(element[0]) + "," + str(element[1]) +"," + str(element[2]) + "," + str(element[3]) + "\n");
 
     cuadsFile.close();
