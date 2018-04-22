@@ -517,6 +517,10 @@ def imprimirError(error, linea):
         print("Variable " + idActual + " declarada en " + alcanceActual + " redefinida.");
     elif(error == 16):
         print("Limite de memoria alcanzado");
+    elif(error == 17):
+        print("Solo se permiten figuras de tipo linea");
+    elif(error == 18):
+        print("No se permiten figuras de tipo linea");
 # checarDefFunc
 #   Descripcion: Checa que el nombre de la funcion recien declarada no haya sido
 #       declarado anteriormente en la tabla de funciones global
@@ -607,10 +611,10 @@ def imprimirContenidoTablaSimbolos(tablaSimb):
         print("\n");
     print("**************************************************************");
 
-def obtenerContSimb(id):
+def obtenerContSimb(id, alcance):
     global tablaDeSimbolos;
-    global alcanceActual;
-    simbFunAct = tablaDeSimbolos.obtener(alcanceActual);
+
+    simbFunAct = tablaDeSimbolos.obtener(alcance);
 
     if(simbFunAct != None):
         if(simbFunAct.tablaVariables != None):
@@ -1236,9 +1240,9 @@ def p_agregarCuadDefectoGravedad(t):
 
 #Cuadruplos Escritura
 #Agregar cuadruplo de Escritura cuando se tiene expresion como atributo
-def p_agregarCuadEScrituraExpresion(t):
+def p_agregarCuadEscrituraExpresion(t):
     '''
-    agregarCuadEScrituraExpresion : empty
+    agregarCuadEscrituraExpresion : empty
     '''
     global pilaOperandos;
     global pilaTipos;
@@ -1261,11 +1265,26 @@ def p_agregarCuadEscrituraSPCTE(t):
     global valorActual;
     global listaDeCuadruplos;
     global contadorCuadruplos;
+    global indiceCTE;
+    global limMemCTE;
+    global tablaMemCte;
 
     if(valorActual is not None):
-        cuadruplo = ["imprimir", valorActual, None, None];
-        listaDeCuadruplos.append(cuadruplo);
-        contadorCuadruplos += 1;
+        if(valorActual in tablaMemCte):
+            indice = tablaMemCte[valorActual];
+            cuadruplo = ["imprimir", indice, None, None];
+            listaDeCuadruplos.append(cuadruplo);
+            contadorCuadruplos += 1;
+        else:
+            if(indiceCTE < limMemCTE):
+                tablaMemCte[valorActual] = indiceCTE;
+                cuadruplo = ["imprimir", indiceCTE, None, None];
+                listaDeCuadruplos.append(cuadruplo);
+                contadorCuadruplos += 1;
+                indiceCTE += 1;
+            else:
+                imprimirError(16, None);
+
 
 #Cuadruplos dibujarLinea y dibujar
 #Agregar operando dibujarLinea
@@ -1310,7 +1329,12 @@ def p_agregarCuadDibujarGen(t):
 
         idFigura = pilaOperandos.top();
         pilaOperandos.pop();
-        pilaTipos.pop()
+        tipoFigura = pilaTipos.top();
+        pilaTipos.pop();
+
+        if(tipoFigura == "linea"):
+            imprimirError(18, None);
+
 
 
         cuad = ["dibujar",idFigura, param1, param2];
@@ -1337,8 +1361,12 @@ def p_agregarCuadDibujarGen(t):
         pilaTipos.pop();
 
         idFigura = pilaOperandos.top();
+        tipoFigura = pilaTipos.top();
         pilaOperandos.pop();
         pilaTipos.pop()
+
+        if(tipoFigura != 'linea'):
+            imprimirError(17,None);
 
         cuad = ["dibujarLinea", idFigura, param1, param2];
         listaDeCuadruplos.append(cuad);
@@ -1347,6 +1375,20 @@ def p_agregarCuadDibujarGen(t):
         cuad = ["dibujarLinea", idFigura, param3, param4];
         listaDeCuadruplos.append(cuad);
         contadorCuadruplos += 1;
+
+def p_agregarOperandoFigura(t):
+    '''
+    agregarOperandoFigura : empty
+    '''
+    global pilaOperandos;
+    global pilaTipos;
+    global idActual;
+
+    figSimb = obtenerContSimb(idActual, "_figuras");
+
+    pilaOperandos.push(figSimb.dirMem);
+    pilaTipos.push(figSimb.tipo);
+
 
 #Puntos neuralgicos condicion
 #1
@@ -2233,8 +2275,9 @@ def p_creaCuadCrearFig(t):
     global indiceCTE;
     global limMemCTE;
     global tablaMemCte;
+    global alcanceActual;
 
-    simbFig = obtenerContSimb(idActual);
+    simbFig = obtenerContSimb(idActual, alcanceActual);
 
     if(simbFig != None):
         if(indiceFigura + 7 < limMemFigura):
@@ -2420,8 +2463,8 @@ def p_dibujar(t):
 
 def p_dibujarAuxiliar1(t):
   '''
-  dibujarAuxiliar1 : DIBUJAR agregarOperadorDibujar L_PAREN ID checarSiExisteFiguraId
-  | DIBUJAR_LINEA agregarOperadorDibujarLinea L_PAREN ID checarSiExisteFiguraId COMMA exp COMMA exp
+  dibujarAuxiliar1 : DIBUJAR agregarOperadorDibujar L_PAREN ID checarSiExisteFiguraId agregarOperandoFigura
+  | DIBUJAR_LINEA agregarOperadorDibujarLinea L_PAREN ID checarSiExisteFiguraId agregarOperandoFigura COMMA exp COMMA exp
   '''
 
 
@@ -2578,7 +2621,8 @@ def p_agregarLongLista(t):
     '''
     global idActual;
     global longLista;
-    simbArr = obtenerContSimb(idActual);
+    global alcanceActual;
+    simbArr = obtenerContSimb(idActual, alcanceActual);
     longLista = simbArr.dim;
 
 
@@ -2593,7 +2637,7 @@ def p_escritura(t):
 
 def p_escrituraAuxiliar1(t):
   '''
-  escrituraAuxiliar1 : expresion agregarCuadEScrituraExpresion
+  escrituraAuxiliar1 : expresion agregarCuadEscrituraExpresion
   | sp_cte agregarCuadEscrituraSPCTE
   '''
 
