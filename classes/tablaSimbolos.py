@@ -65,7 +65,9 @@ class SimboloFuncion(Simbolo):
         self.parametros = [];
         self.cantParametros = 0;
         self.cantVarLocales = 0;
+        self.cantTemp = 0;
         self.procComienzo = comienzo;
+        self.valorRetorno = None;
 
 
 

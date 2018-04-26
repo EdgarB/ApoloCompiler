@@ -282,6 +282,7 @@ pilaSaltosPendientes = Pila();
 contadorVariables = 0;
 contadorParametros = 0;
 apuntadorFuncion = None;
+contadorTemporales  = 0;
 
 #Constantes y direcciones de Memoria
 tablaMemCte = OrderedDict();
@@ -332,9 +333,13 @@ traductorIndicesOperandosCubo = {
     "bool" : 3,
     "booleano" : 3,
     "lista int" : 4,
+    "lista entero" : 4,
     "lista float" : 5,
+    "lista flotante" : 5,
     "lista string" : 6,
+    "lista texto" : 6,
     "lista bool" : 7,
+    "lista booleano" : 7,
     "nothing" : 8
 }
 
@@ -400,7 +405,7 @@ cuboSemantico = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [5, 0, 0, 0, 5, 0, 9, 0, 0, 4, 4],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -411,7 +416,7 @@ cuboSemantico = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [5, 0, 0, 0, 5, 0, 9, 0, 0, 4, 4],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ],
@@ -422,7 +427,7 @@ cuboSemantico = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [5, 0, 0, 0, 5, 0, 9, 0, 0, 4, 4],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ],
         [
@@ -433,9 +438,21 @@ cuboSemantico = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [5, 0, 0, 0, 5, 0, 9, 0, 0, 4, 4]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        ],
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         ]
+
     ];
 
 """
@@ -665,27 +682,31 @@ def p_programa(t):
 
 def p_variablesAuxiliar(t):
     '''
-        variablesAuxiliar : creaTablaVar variables
-        | empty
-        '''
+    variablesAuxiliar : creaTablaVar variables
+    | creaTablaVar empty
+    '''
+
 
 def p_pantallaAuxiliar(t):
     '''
-        pantallaAuxiliar : pantalla
-        | empty agregarCuadDefectoPantalla
-        '''
+    pantallaAuxiliar : pantalla
+    | empty
+    '''
+
 
 def p_figurasAuxiliar(t):
     '''
-        figurasAuxiliar : figuras
-        | empty
-        '''
+    figurasAuxiliar : figuras
+    | empty
+    '''
+
 
 def p_gravedadAuxiliar(t):
     '''
-        gravedadAuxiliar : gravedad
-        | empty agregarCuadDefectoGravedad
-        '''
+    gravedadAuxiliar : gravedad
+    | empty
+    '''
+
 def p_funcionesAuxiliar(t):
     '''
         funcionesAuxiliar : FUNCIONES funciones
@@ -797,6 +818,7 @@ def p_compSemMasMenosYGenCuad(t):
     global listaDeCuadruplos;
     global contadorCuadruplos;
     global indiceTemporal;
+    global contadorTemporales;
     global liMemTemporal;
     varTemp =  pilaOperadores.top();
     if(varTemp is not None and (varTemp == '+' or varTemp == '-')):
@@ -823,7 +845,7 @@ def p_compSemMasMenosYGenCuad(t):
             if(indiceTemporal < limMemTemporal):
                 cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
 
-
+                contadorTemporales += 1;
                 listaDeCuadruplos.append(cuadruplo);
                 pilaOperandos.push(indiceTemporal);
                 tipoResultado = traductorValoresCubo[tipoResultado];
@@ -852,6 +874,7 @@ def p_comprobarSemanticaPorEntre(t):
     global contadorCuadruplos;
     global indiceTemporal;
     global liMemTemporal;
+    global contadorTemporales;
     varTemp = pilaOperadores.top();
     if(varTemp is not None and (varTemp == '*' or varTemp == '/')):
         operandoDerecho = pilaOperandos.top();
@@ -883,6 +906,7 @@ def p_comprobarSemanticaPorEntre(t):
                 pilaTipos.push(tipoResultado);
 
                 indiceTemporal += 1;
+                contadorTemporales += 1;
                 contadorCuadruplos += 1;
             else:
                 imprimirError(16,None);
@@ -926,6 +950,7 @@ def p_comprobarSemanticaOperadoresRelacionales(t):
     global contadorCuadruplos;
     global indiceTemporal;
     global liMemTemporal;
+    global contadorTemporales;
     varTemp = pilaOperadores.top();
 
     if(varTemp is not None and (varTemp == '>' or varTemp == '<' or varTemp == '<=' or varTemp == '>=' or varTemp == '!=' or varTemp == '==')):
@@ -961,6 +986,7 @@ def p_comprobarSemanticaOperadoresRelacionales(t):
                 pilaTipos.push(tipoResultado);
 
                 indiceTemporal += 1;
+                contadorTemporales += 1;
                 contadorCuadruplos += 1;
             else:
                 imprimirError(16, None);
@@ -982,6 +1008,7 @@ def p_compSemYGenCuadYO(t):
     global contadorCuadruplos;
     global indiceTemporal;
     global liMemTemporal;
+    global contadorTemporales;
     varTemp = pilaOperadores.top();
 
     if(varTemp is not None and (varTemp == '&&' or varTemp == '||')):
@@ -1011,7 +1038,7 @@ def p_compSemYGenCuadYO(t):
                 pilaOperandos.push(resultado);
                 tipoResultado = traductorValoresCubo[tipoResultado];
                 pilaTipos.push(tipoResultado);
-
+                contadorTemporales += 1;
                 contadorCuadruplos += 1;
             else:
                 imprimirError(16, None);
@@ -1082,6 +1109,7 @@ def p_agregarCuadYCompSemAsignacion(t):
     global alcanceActual;
     global indiceTemporal;
     global liMemTemporal;
+    global contadorTemporales;
     #print("ASIGNACION");
     #print(pilaTipos.items);
     #print(pilaOperandos.items);
@@ -1124,6 +1152,7 @@ def p_agregarCuadYCompSemAsignacion(t):
 
                     contadorCuadruplos += 1;
                     indiceTemporal += 1;
+                    contadorTemporales += 1;
                 else:
                     imprimirError(16, None);
             elif(tipoIzquierdo == "float" or  tipoIzquierdo == "flotante"):
@@ -1135,13 +1164,14 @@ def p_agregarCuadYCompSemAsignacion(t):
 
                     contadorCuadruplos += 1;
                     indiceTemporal += 1;
+                    contadorTemporales += 1;
                 else:
                     imprimirError(16, None);
             else:
                 cuadruplo = [operador, operandoDerecho, None, operandoIzquierdo];
 
-            listaDeCuadruplos.append(cuadruplo);
-            contadorCuadruplos += 1;
+                listaDeCuadruplos.append(cuadruplo);
+                contadorCuadruplos += 1;
 
         else:
             imprimirError(6, t.lineno(1));
@@ -1181,6 +1211,7 @@ def p_agregarCuadYCompSemPantalla(t):
         imprimirError(7,None);
 
 #Pantalla auxiliar (valores por defecto)
+"""
 def p_agregarCuadDefectoPantalla(t):
     '''
     agregarCuadDefectoPantalla : empty
@@ -1191,7 +1222,7 @@ def p_agregarCuadDefectoPantalla(t):
     cuadruplo = ["pantalla", 100, 100, None];
     listaDeCuadruplos.append(cuadruplo);
     contadorCuadruplos += 1;
-
+"""
 
 #Puntos neuralgicos para gravedad y gravedadAuxiliar
 #Gravedad
@@ -1223,10 +1254,14 @@ def p_agregarCuadYCompSemGravedad(t):
         cuadruplo = ["gravedad", operandoIzquierdo, operandoDerecho, None];
         listaDeCuadruplos.append(cuadruplo);
         contadorCuadruplos += 1;
+
+
+
     else:
         imprimirError(7,None);
 
 #Gravedad auxiliar (valores por defecto)
+"""
 def p_agregarCuadDefectoGravedad(t):
     '''
     agregarCuadDefectoGravedad : empty
@@ -1238,6 +1273,7 @@ def p_agregarCuadDefectoGravedad(t):
     listaDeCuadruplos.append(cuadruplo);
     contadorCuadruplos += 1;
 
+"""
 #Cuadruplos Escritura
 #Agregar cuadruplo de Escritura cuando se tiene expresion como atributo
 def p_agregarCuadEscrituraExpresion(t):
@@ -1597,7 +1633,7 @@ def p_generarAccionERA(t):
     global tablaDeSimbolos;
 
     apuntadorFuncion = tablaDeSimbolos.obtener(idActual);
-    cuad = ["era", idActual, None, None];
+    cuad = ["era", idActual, apuntadorFuncion.cantVarLocales, apuntadorFuncion.cantTemp];
     listaDeCuadruplos.append(cuad);
     contadorCuadruplos += 1;
     contadorParametros = 1;
@@ -1642,6 +1678,14 @@ def p_generarAccionGoSub(t):
     global listaDeCuadruplos;
     global contadorCuadruplos;
     global apuntadorFuncion;
+    global tablaDeSimbolos;
+    global indiceTemporal;
+    global limMemTemporal;
+    global pilaOperandos;
+    global pilaTipos;
+
+    simbFunc = tablaDeSimbolos.obtener("global");
+    var = simbFunc.tablaVariables.obtener("_"+apuntadorFuncion.nombre);
 
 
     if(contadorParametros - 1 != apuntadorFuncion.cantParametros):
@@ -1650,9 +1694,29 @@ def p_generarAccionGoSub(t):
     else:
         cuad = ["gosub", apuntadorFuncion.nombre, None, apuntadorFuncion.procComienzo];
         listaDeCuadruplos.append(cuad);
+
+
+        if(var.tipo != "void"):
+            if(indiceTemporal < limMemTemporal):
+                pilaOperandos.push(indiceTemporal);
+                pilaTipos.push(var.tipo);
+                cuad = ["=",var.dirMem , None, indiceTemporal];
+                listaDeCuadruplos.append(cuad);
+                contadorCuadruplos += 1;
+
+                indiceTemporal += 1;
+
+
+            else:
+                imprimirError(16, None);
+        else:
+            pilaOperandos.push(None);
+            pilaTipos.push("nothing");
+
         contadorCuadruplos += 1;
         contadorParametros = 1;
         apuntadorFuncion = None;
+
 ################################################################################
 
 # checarSiExisteFiguraId
@@ -1754,6 +1818,7 @@ def p_agregaGlobalTabla(t):
 
     tablaDeSimbolos.insertar(SimboloFuncion("global", tipoActual, contadorCuadruplos));
     alcanceActual = "global";
+
 
 # asignarAlcance
 #   Descripcion: Asigna el alcance actual segun el ultimo registro leido de la
@@ -1886,13 +1951,57 @@ def p_agregaVarTabla(t):
 # agregaFuncTabla
 #   Descripcion: Agrega el registro de la funcion a la tabla de funciones global.
 def p_agregaFuncTabla(t):
-  '''
+    '''
     agregaFuncTabla : empty
-  '''
-  global idActual;
-  global tipoActual;
-  global contadorCuadruplos;
-  tablaDeSimbolos.insertar(SimboloFuncion(idActual, tipoActual, contadorCuadruplos));
+    '''
+    global idActual;
+    global tipoActual;
+    global contadorCuadruplos;
+    global tablaDeSimbolos;
+    global tablaDeSimbolos
+    global idActual
+    global tipoActual
+    global alcanceActual
+    global contadorVariables;
+    global indiceLocal;
+    global indiceGlobal;
+    global longLista;
+    global limMemLocal;
+    global limMemGlobal;
+    simboloFunc = tablaDeSimbolos.obtener("global");
+    tablaDeSimbolos.insertar(SimboloFuncion(idActual, tipoActual, contadorCuadruplos));
+
+    if(simboloFunc == None):
+        #print("simboloFuncion " + alcanceActual + " no existe")#error esa funcion no existe
+        imprimirError(1, None);
+    elif(simboloFunc.bCreaTabla):
+        tablaVars = simboloFunc.tablaVariables
+        if(tablaVars != None): #Debe de existir, si no algo hicimos mal en el codigo
+            contadorVariables += 1;
+            temp = tipoActual.split();
+            if(temp[0] == "lista"):
+                if(indiceGlobal < limMemGlobal):
+                  simbVar = SimboloVariable("_"+idActual,tipoActual,indiceGlobal, longLista);
+                  tablaVars.insertar(simbVar);
+                  indiceGlobal += longLista;
+                else:
+                  imprimirError(16, None);
+
+
+            else:
+              if(indiceGlobal < limMemGlobal):
+                  simbVar = SimboloVariable("_"+idActual,tipoActual,indiceGlobal, None);
+                  tablaVars.insertar(simbVar);
+                  indiceGlobal += 1;
+              else:
+                  imprimirError(16, None);
+    else:
+        print("Algo salio mal, checar que la regla para crear tabla de variables esta en las producciones correspondientes")
+
+
+
+
+
 
 
 # agregaParamFunc
@@ -1946,16 +2055,20 @@ def p_liberaTablaVars(t):
     global contadorCuadruplos;
     global listaDeCuadruplos;
     global indiceTemporal;
+    global contadorTemporales;
     simboloFunc = tablaDeSimbolos.obtener(alcanceActual);
     if(simboloFunc == None):
         imprimirError(1); #Error funcion no existe
     else:
         simboloFunc.tablaVariables = None;
-        simboloFunc.cantVarLocales = contadorVariables;
+        simboloFunc.cantVarLocales = indiceLocal - 21000;
+        simboloFunc.cantTemp = indiceTemporal - 41000;
+
         cuad = ["endproc", None, None, None];
         listaDeCuadruplos.append(cuad);
         contadorCuadruplos += 1;
 
+        contadorTemporales = 0;
         indiceLocal = 21000;
         indiceTemporal = 41000;
 
@@ -2075,16 +2188,21 @@ def p_gravedad(t):
   '''
 
 
+
 #     FUNCIONES     ############################################################
 def p_funciones(t):
   '''
-  funciones : funcionesAuxiliar1 ID asignarAlcance agregaFuncTabla creaTablaVar L_PAREN tipo ID agregaParamFunc funcionesAuxiliar2 R_PAREN L_BRACES  funcionesAuxiliar3 funcionesAuxiliar4 R_BRACES liberaTablaVars
+  funciones : funcionesAuxiliar1 ID asignarAlcance agregaFuncTabla creaTablaVar L_PAREN tipo ID agregaParamFunc funcionesAuxiliar2 R_PAREN L_BRACES  funcionesAuxiliar3 funcionesAuxiliar4 R_BRACES liberaTablaVars funcionesAuxiliar5
   '''
 def p_funcionesAuxiliar1(t):
-  '''
-  funcionesAuxiliar1 : tipo
-  | VOID
-  '''
+    '''
+    funcionesAuxiliar1 : tipo
+    | VOID
+    '''
+    global indiceTemporal;
+    global indiceLocal;
+    indiceTemporal = 41000;
+    indiceLocal = 21000;
 
 def p_funcionesAuxiliar2(t):
   '''
@@ -2105,6 +2223,12 @@ def p_funcionesAuxiliar4(t):
     | empty
     '''
 
+def p_funcionesAuxiliar5(t):
+    '''
+    funcionesAuxiliar5 : funciones
+    | empty
+    '''
+
 
 
 #     FIGURAS     ##############################################################
@@ -2112,6 +2236,7 @@ def p_figuras(t):
   '''
   figuras : FIGURAS creaFigFuncSimb  figura ID checarFiguraId L_BRACES figura_atributos figura_atributosAuxiliar2 R_BRACES creaFigVar creaCuadCrearFig figurasAuxiliar1 SEMICOLON
   '''
+
 
 def p_figurasAuxiliar1(t):
   '''
@@ -2566,6 +2691,7 @@ def p_agregarCuadsElemArr(t):
     global indiceCTE;
     global limMemCTE;
     global liMemTemporal;
+    global contadorTemporales;
     indice = pilaOperandos.top();
     pilaOperandos.pop()
 
@@ -2584,6 +2710,7 @@ def p_agregarCuadsElemArr(t):
     if(indiceTemporal < limMemTemporal):
         cuad = ["cast", indice, "int",indiceTemporal];
         indiceTemporal += 1;
+        contadorTemporales += 1;
 
         listaDeCuadruplos.append(cuad);
         contadorCuadruplos += 1;
@@ -2606,6 +2733,7 @@ def p_agregarCuadsElemArr(t):
 
         cuad = ["+", dirBLista, indiceTemporal - 1, indiceTemporal];
         indiceTemporal += 1;
+        contadorTemporales += 1;
         listaDeCuadruplos.append(cuad);
         contadorCuadruplos += 1;
 
@@ -2797,6 +2925,7 @@ def p_factorAuxiliar4(t):
     global indiceCTE;
     global limMemCTE;
     global liMemTemporal;
+    global contadorTemporales;
     if(signoActual != None and signoActual == "-"):
         signoActual = None;
         operandoDerecho = pilaOperandos.top();
@@ -2829,6 +2958,7 @@ def p_factorAuxiliar4(t):
                 listaDeCuadruplos.append(cuad);
                 indiceTemporal += 1;
                 contadorCuadruplos += 1;
+                contadorTemporales += 1;
             else:
                 imprimirError(16,None);
         else:

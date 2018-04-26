@@ -40,6 +40,17 @@ entero assd(entero i, flotante j){
 
     regresar iS;
 }
+entero assd2(entero i, flotante j){
+    variables
+        entero iS;
+        texto tAux;
+        booleano bAux;
+        lista entero[10] liE;
+    bAux = verdadero;
+    tAux = "asdasd";
+
+    regresar iS;
+}
 apolo{
     bGlobal1 = verdadero;
     tGlobal1 = "asdasd";
@@ -93,6 +104,7 @@ apolo{
     }
 
     assd(entGlobal1, fGlobal1);
+    assd2(entGlobal1, fGlobal1);
 
     liEntGlobal1 = [10,10,10,20,30,40,50,60,40];
     liEntGlobal1[9] = 10002;
