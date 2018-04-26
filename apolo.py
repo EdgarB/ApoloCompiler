@@ -131,7 +131,7 @@ def t_CTE_I(t):
 def t_CTE_STRING(t):
     r'\".*\"'
     t.value = str(t.value)
-    #print(t.value);
+
     return t
 
 
@@ -193,7 +193,6 @@ def t_MINUS_OP(t):
     r'\-'
     global operadorActual
     operadorActual = t.value;
-    #print(operadorActual);
     return t;
 
 def t_TIMES_OP(t):
@@ -212,7 +211,6 @@ def t_ASSIGN_OP(t):
     r'\='
     global operadorActual;
     operadorActual = t.value;
-    #print(operadorActual);
     return t;
 
 def t_BIGGER_THAN(t):
@@ -538,16 +536,19 @@ def imprimirError(error, linea):
         print("Solo se permiten figuras de tipo linea");
     elif(error == 18):
         print("No se permiten figuras de tipo linea");
+
+    sys.exit();
 # checarDefFunc
 #   Descripcion: Checa que el nombre de la funcion recien declarada no haya sido
 #       declarado anteriormente en la tabla de funciones global
 #       (en la variable tablaDeSimbolos).
 #   Retorno: Si encuentra que el id ya habia sido declarado regresa VERDADERO,
 #       Si no, regresa FALSO.
-def checarDefFunc():
+def checarDefFunc(id):
   global tablaDeSimbolos
   global idActual
-  return tablaDeSimbolos.existe(idActual);
+
+  return tablaDeSimbolos.existe(id);
 
 # checarDefVar
 #   Descripcion: Checa que la variable recien definida no haya sido definida
@@ -675,6 +676,10 @@ def p_programa(t):
     global tablaDeSimbolos;
     global listaDeCuadruplos;
     global contadorCuadruplos;
+
+
+    listaDeCuadruplos.append(["END",None, None,None])
+    contadorCuadruplos +=1;
     imprimirContenidoTablaSimbolos(tablaDeSimbolos);
     print("Cant cuads (real) -> " + str(len(listaDeCuadruplos)));
     print("Cant cuads (contador) -> " + str(contadorCuadruplos));
@@ -715,13 +720,15 @@ def p_funcionesAuxiliar(t):
 
 def p_apoloAuxiliar(t):
     '''
-        apoloAuxiliar : APOLO apoloTablaFunc agregaFuncTabla creaTablaVar bloque
+        apoloAuxiliar : APOLO apoloTablaFunc agregaFuncTabla creaTablaVar L_BRACES variables apoloAuxiliar2 R_BRACES
+        | APOLO apoloTablaFunc agregaFuncTabla creaTablaVar L_BRACES  apoloAuxiliar2 R_BRACES
     '''
-    global listaDeCuadruplos;
-    global contadorCuadruplos;
+def p_apoloAuxiliar2(t):
+    '''
+        apoloAuxiliar2 : estatuto apoloAuxiliar2
+        | empty
 
-    listaDeCuadruplos.append(["END",None, None,None])
-    contadorCuadruplos +=1;
+    '''
 ################################################################################
 
 # Puntos neuralgicos para cuadruplos
@@ -749,7 +756,7 @@ def p_agregarIdHaciaPilas(t):
         varAux2 = varAux.tablaVariables.obtener(idActual);
         if(varAux2 is not None):
             #Variable es global
-            #print(idActual + " : " + str(varAux2.valor));
+
             pilaOperandos.push(varAux2.dirMem);
             pilaTipos.push(varAux2.tipo);
     else:
@@ -760,12 +767,12 @@ def p_agregarIdHaciaPilas(t):
             if(varAux2 is not None):
                 pilaOperandos.push(varAux2.dirMem);
                 pilaTipos.push(varAux2.tipo);
-                #print(idActual + " : " +str(varAux2.nombre));
+
         else:
             varTemp2 = varTemp2.obtener(idActual);
             pilaOperandos.push(varTemp2.dirMem);
             pilaTipos.push(varTemp2.tipo);
-            #print(idActual + " : " + str(varTemp2.nombre));
+
 
 # Punto 2 y 3 y 8
 def p_agregarOperador(t):
@@ -774,36 +781,9 @@ def p_agregarOperador(t):
     '''
     global operadorActual;
     global pilaOperadores;
-    """
-    if(operadorActual == '+'):
-        pilaOperadores.push('+');
-    elif(operadorActual == '-'):
-        pilaOperadores.push('-');
-    elif(operadorActual == '*'):
-        pilaOperadores.push('*');
-    elif(operadorActual == '/'):
-        pilaOperadores.push('/');
-    elif(operadorActual == '>'):
-        pilaOperadores.push('>');
-    elif(operadorActual == '<'):
-        pilaOperadores.push('<');
-    elif(operadorActual == '>='):
-        pilaOperadores.push('>=');
-    elif(operadorActual == '<='):
-        pilaOperadores.push('<=');
-    elif(operadorActual == '!='):
-        pilaOperadores.push('!=');
-    elif(operadorActual == '=='):
-        pilaOperadores.push('==');
-    elif(operadorActual == '&&'):
-        pilaOperadores.push('&&');
-    elif(operadorActual == '||'):
-        pilaOperadores.push('||');
-    elif(operadorActual == '='):
-        pilaOperadores.push('=');
-    """
+
     pilaOperadores.push(operadorActual);
-    #print("--PILA OPERADORE-- ",  pilaOperadores.items);
+
 
 # Punto 4
 def p_compSemMasMenosYGenCuad(t):
@@ -839,8 +819,7 @@ def p_compSemMasMenosYGenCuad(t):
         pilaOperadores.pop();
 
         tipoResultado = cuboSemantico[traductorIndicesOperandosCubo[tipoIzquierdo]][traductorIndicesOperandosCubo[tipoDerecho]][traductorIndicesOperadoresCubo[operador]]
-        #print("MAS MENOS : " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
-        #print("MAS MENOS: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
+
         if(tipoResultado != 0):
             if(indiceTemporal < limMemTemporal):
                 cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
@@ -893,8 +872,7 @@ def p_comprobarSemanticaPorEntre(t):
         pilaOperadores.pop();
 
         tipoResultado = cuboSemantico[traductorIndicesOperandosCubo[tipoIzquierdo]][traductorIndicesOperandosCubo[tipoDerecho]][traductorIndicesOperadoresCubo[operador]]
-        #print("POR ENTRE : " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
-        #print("POR ENTRE: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
+
         if(tipoResultado != 0):
             if(indiceTemporal < limMemTemporal):
                 cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
@@ -974,8 +952,7 @@ def p_comprobarSemanticaOperadoresRelacionales(t):
         ind2 = traductorIndicesOperandosCubo[tipoDerecho];
         ind3 = traductorIndicesOperadoresCubo[operador];
         tipoResultado = cuboSemantico[ind1][ind2][ind3];
-        #print("RELACIONALES : " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
-        #print("RELACIONALES: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
+
         if(tipoResultado != 0):
             if(indiceTemporal < limMemTemporal):
                 cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
@@ -1028,8 +1005,7 @@ def p_compSemYGenCuadYO(t):
         pilaOperadores.pop();
 
         tipoResultado = cuboSemantico[traductorIndicesOperandosCubo[tipoIzquierdo]][traductorIndicesOperandosCubo[tipoDerecho]][traductorIndicesOperadoresCubo[operador]];
-        #print("AND OR : " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
-        #print("AND OR: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
+
         if(tipoResultado != 0):
             if(indiceTemporal < limMemTemporal):
                 cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
@@ -1088,8 +1064,7 @@ def p_agregarOperando(t):
                 indiceCTE += 1;
             else:
                 imprimirError(16, None);
-    #else:
-        #print("tipo: " + str(type(valorActual)));
+
 
 
 #4
@@ -1110,15 +1085,11 @@ def p_agregarCuadYCompSemAsignacion(t):
     global indiceTemporal;
     global liMemTemporal;
     global contadorTemporales;
-    #print("ASIGNACION");
-    #print(pilaTipos.items);
-    #print(pilaOperandos.items);
-    #print(pilaOperadores.items);
-    #print(pilaOperadores.top());
-    #print("ENDASIGNACION");
+
     varOpTop = pilaOperadores.top();
     if(varOpTop == '=' or varOpTop == '+=' or varOpTop == '-='):
-        #print("entro igual");
+
+
         operandoDerecho = pilaOperandos.top();
         pilaOperandos.pop();
 
@@ -1135,12 +1106,16 @@ def p_agregarCuadYCompSemAsignacion(t):
         pilaOperadores.pop();
 
 
-        #print("ASIGNACION: " + str(operandoIzquierdo) + " " + str(operador) + " " + str(operandoDerecho));
-        #print("ASIGNACION: " + str(tipoIzquierdo) + " " + str(operador) + " " + str(tipoDerecho));
-        tipoResultado = cuboSemantico[traductorIndicesOperandosCubo[tipoIzquierdo]][traductorIndicesOperandosCubo[tipoDerecho]][traductorIndicesOperadoresCubo[operador]];
+
+
+
+        ind1 = traductorIndicesOperandosCubo[tipoIzquierdo];
+        ind2 = traductorIndicesOperandosCubo[tipoDerecho];
+        ind3 = traductorIndicesOperadoresCubo[operador];
+        tipoResultado = cuboSemantico[ind1][ind2][ind3];
 
         if(tipoResultado != 0):
-            #print("wooo");
+
 
             if(tipoIzquierdo == "integer" or tipoIzquierdo == "int" or tipoIzquierdo == "entero"):
                 if(indiceTemporal < limMemTemporal):
@@ -1148,9 +1123,12 @@ def p_agregarCuadYCompSemAsignacion(t):
                     cuad = ["cast", operandoDerecho, "int", indiceTemporal];
                     listaDeCuadruplos.append(cuad);
 
-                    cuadruplo = [operador, indiceTemporal, None, operandoIzquierdo];
 
-                    contadorCuadruplos += 1;
+
+
+                    cuadruplo = [operador, indiceTemporal, None, operandoIzquierdo];
+                    listaDeCuadruplos.append(cuadruplo);
+                    contadorCuadruplos += 2;
                     indiceTemporal += 1;
                     contadorTemporales += 1;
                 else:
@@ -1161,8 +1139,8 @@ def p_agregarCuadYCompSemAsignacion(t):
                     listaDeCuadruplos.append(cuad);
 
                     cuadruplo = [operador, indiceTemporal, None, operandoIzquierdo];
-
-                    contadorCuadruplos += 1;
+                    listaDeCuadruplos.append(cuad);
+                    contadorCuadruplos += 2;
                     indiceTemporal += 1;
                     contadorTemporales += 1;
                 else:
@@ -1448,8 +1426,10 @@ def p_generarCuadCondicionGotoFIf(t):
         pilaSaltosPendientes.push(contadorCuadruplos);
         contadorCuadruplos += 1;
     else:
+
         #Imprimir error de type missmatch
         imprimirError(10, None);
+
 #2
 def p_llenarGotof(t):
     '''
@@ -1523,7 +1503,9 @@ def p_generarCuadCondCiclo(t):
         pilaSaltosPendientes.push(contadorCuadruplos - 1);
 
     else:
+
         imprimirError(10, None);
+
 #3
 def p_generarCuadRetCiclo(t):
     '''
@@ -1569,14 +1551,19 @@ def p_genCuadRetorno(t):
         pilaTipos.pop();
         if(thisFunc.tipo == tipoRes):
             #(pilaOperandos.items);
+
+            dirValorGlobalFunc = tablaDeSimbolos.obtener("global").tablaVariables.obtener("_"+thisFunc.nombre).dirMem;
+
             resultado = pilaOperandos.top();
             pilaOperandos.pop();
             #("TIPO FUNCION -> " + str(tipoRes) + " - " + str(resultado));
-            cuad = ["return", resultado, None,None ];
+            cuad = ["=", resultado, None, dirValorGlobalFunc];
             listaDeCuadruplos.append(cuad);
             contadorCuadruplos += 1;
         else:
+
             imprimirError(10,None);
+
 
 # Checar si el retorno esta en una funcion que regrese algo
 def p_checarRetorno(t):
@@ -1617,7 +1604,8 @@ def p_checarSiExisteFuncion(t):
     '''
     checarSiExisteFuncion : empty
     '''
-    if(checarDefFunc() is False):
+    global idActual
+    if(checarDefFunc(idActual) is False):
         imprimirError(1, None);
 
 #Generar accion ERA
@@ -1657,13 +1645,17 @@ def p_generarAccionParam(t):
     argTipo = pilaTipos.top();
     pilaTipos.pop();
 
+    argTipo = traductorIndicesOperandosCubo[argTipo];
+    paramTipo = apuntadorFuncion.parametros[contadorParametros - 1][1];
+    paramTipo = traductorIndicesOperandosCubo[paramTipo];
     if(contadorParametros > apuntadorFuncion.cantParametros):
          #Error cantidad de parametros en llamada a funcion no coinciden
          imprimirError(11, None);
-    elif(argTipo != apuntadorFuncion.parametros[contadorParametros - 1][1]):
+    elif(argTipo != paramTipo):
         #Error type missmatch
+
         imprimirError(10, None);
-        #print("func - " + str(argTipo) + " = " + str(apuntadorFuncion.parametros[contadorParametros - 1][1]));
+
     else:
         cuad = ["param", argumento, None, contadorParametros];
         listaDeCuadruplos.append(cuad);
@@ -1847,11 +1839,10 @@ def p_creaTablaVar(t):
     simboloAlcance = tablaDeSimbolos.obtener(alcanceActual)
     if simboloAlcance == None :
         #Generar error funcion no existe
-        #print("Error: ");
-        #print("Funcion " + idActual + " inexistente" );
+
         imprimirError(1, None);
     else: #Checa si esta siendo llamada y no siendo declarada la funcion
-        #print("Se creo tabla " + alcanceActual);
+
         simboloAlcance.tablaVariables = TablaSimbolos(alcanceActual,"vars");
         contadorVariables = 0;
 
@@ -1864,6 +1855,7 @@ def p_checarDefID(t):
     global idActual;
 
     if(not checarDefVar()):
+
         imprimirError(0, t.lineno(1));
 
 # agregaVarTabla
@@ -1888,7 +1880,7 @@ def p_agregaVarTabla(t):
     simboloFunc = tablaDeSimbolos.obtener(alcanceActual);
 
     if(simboloFunc == None):
-        #print("simboloFuncion " + alcanceActual + " no existe")#error esa funcion no existe
+
         imprimirError(1, None);
     elif(simboloFunc.bCreaTabla):
         tablaVars = simboloFunc.tablaVariables
@@ -1972,7 +1964,7 @@ def p_agregaFuncTabla(t):
     tablaDeSimbolos.insertar(SimboloFuncion(idActual, tipoActual, contadorCuadruplos));
 
     if(simboloFunc == None):
-        #print("simboloFuncion " + alcanceActual + " no existe")#error esa funcion no existe
+
         imprimirError(1, None);
     elif(simboloFunc.bCreaTabla):
         tablaVars = simboloFunc.tablaVariables
@@ -2550,8 +2542,7 @@ def p_creaCuadCrearFig(t):
 
         else:
             imprimirError(16, None);
-    #else:
-        #print("Debug: Simbolo figura es None hay algo mal aqui!");
+
 
 
 #     EXP    ###################################################################
@@ -2639,8 +2630,7 @@ def p_incrementoAuxiliar1(t):
   | MINUS_EQUAL_OP
   '''
   global operadorActual;
-  ### DEBUG: operador += no esta siendo agregado
-  #print("OPERADOR INCREMENTO: " + t[1]);
+
   operadorActual = t[1];
 
 #     ASIGNACION    ##########################################################
@@ -2648,8 +2638,6 @@ def p_asignacion(t):
   '''
   asignacion : asignacionAuxiliar2   ASSIGN_OP agregarOperadorAsignacion asignacionAuxiliar1
   '''
-  if(checarDefVar() is False):
-      imprimirError(0, t.lineno(1));
 
 def p_agregarOperadorAsignacion(t):
     '''
@@ -2657,9 +2645,9 @@ def p_agregarOperadorAsignacion(t):
     '''
     global operadorActual;
     global pilaOperadores;
-    #print("OPERADOR ASIGNACION!!!!!!!!!")
+
     pilaOperadores.push('=');
-    #print("WWWWWWWWWWWAAAAT");
+
 def p_asignacionAuxiliar1(t):
   '''
   asignacionAuxiliar1 : expresion agregarCuadYCompSemAsignacion
@@ -2962,7 +2950,9 @@ def p_factorAuxiliar4(t):
             else:
                 imprimirError(16,None);
         else:
+
             imprimirError(10, None);
+
 
 
 
@@ -3011,8 +3001,9 @@ def p_comprobarTipoElem(t):
 
     if(listaTipoTrad != elemTipoTrad):
         #No coinciden los tipos, ERROR!
-        #print(str(temp) + " - " + str(tipoElem));
+
         imprimirError(10,None);
+
     else:
         #Coinciden los tipos
         #Agregar cuadruplo
@@ -3030,7 +3021,7 @@ def p_comprobarIndices(t):
     global longLista;
 
     if(contadorIndice >= longLista):
-        #print("Comprobando indices)
+
         imprimirError(13, None);
         #Error indice fuera de rango
 
@@ -3048,7 +3039,9 @@ def p_reiniciarContadorIndices(t):
     temp2 = temp.split();
     if(temp2[0] != "lista"):
         #error tipos no coinciden!
+
         imprimirError(10,None);
+
     else:
         contadorIndice = 0;
 
@@ -3114,14 +3107,8 @@ def p_sp_cte(t):
   '''
   global valorActual;
   valorActual = t[1];
-  """
-  if(valorActual is not True and valorActual is not False):
-      print();
-      print("**************************");
-      print(valorActual);
-      print("**************************");
-  """
-  #print("t[1] = " + str(type(t[1])));
+
+
   t[0] = t[1];
 
 #     CONSTANTE BOOLEANA     ###################################################
@@ -3138,16 +3125,7 @@ def p_cte_bool(t):
     else:
         t[0] = False;
 
-"""
-#     CONSTANTE VARIABLES     ##################################################
-def p_var_cte(t):
-  '''
-  var_cte : CTE_I
-  | ID checarDefID
-  | CTE_F
-  | llamada
-  '''
-"""
+
 #     PRODUCCIONES PARA LOS OPERADORES #########################################
 """
     + - * / && ||

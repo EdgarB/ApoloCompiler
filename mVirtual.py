@@ -128,7 +128,7 @@ def getValor(iDirMem):
             return None;
     elif(iDirMem < iComienzoMemTemporal): #Local
         valPilaMemLocal = pilaMemoriaLocalLim.top();
-        if valPilaMemLocal is None):
+        if (valPilaMemLocal is None):
             temporal = liMemLocal[iDirMem - iComienzoMemLocal];
             if temporal != None:
                 return temporal;
@@ -145,8 +145,8 @@ def getValor(iDirMem):
                 return None;
 
     elif(iDirMem < iComienzoMemCte): #Temporal
-        valPilaMemTemporal = valPilaMemTemporal.top();
-        if valPilaMemTemporal is None):
+        valPilaMemTemporal = pilaMemoriaTempLim.top();
+        if (valPilaMemTemporal is None):
             temporal = liMemTemporal[iDirMem - iComienzoMemTemporal];
             if temporal != None:
                 return temporal;
@@ -155,11 +155,15 @@ def getValor(iDirMem):
                 print("Error: Variable temporal no inicializada.");
                 return None;
         else:
-            temporal = liMemLocal[valPilaMemTemporal[0] + (iDirMem - iComienzoMemLocal)];
+            indTemp = valPilaMemTemporal[0];
+            #print(indTemp);
+            #print(iDirMem);
+            #print(indTemp + (iDirMem - iComienzoMemTemporal))
+            temporal = liMemTemporal[valPilaMemTemporal[0] + (iDirMem - iComienzoMemTemporal)];
             if temporal != None:
                 return temporal;
             else:
-                print("Error: Variable local no inicializada.");
+                print("Error: Variable temporal no inicializada.");
                 return None;
 
     elif(iDirMem < iComienzoMemFig): #Cte
@@ -201,8 +205,8 @@ def setValor(iDirMem, valor):
 
     if(iDirMem < iComienzoMemLocal): #Global
         iSize = len(liMemGlobal);
-        if iSize < iDirMem:
-            while(iSize < iDirMem):
+        if iSize < iDirMem + 1:
+            while(iSize < iDirMem + 1):
                 liMemGlobal.append(None);
                 iSize += 1;
         liMemGlobal[iDirMem - iComienzoMemGlobal] = valor;
@@ -216,8 +220,8 @@ def setValor(iDirMem, valor):
 
 
         iSize = len(liMemLocal);
-        if iSize < iDirMem:
-            while(iSize < iDirMem):
+        if iSize <  iDirMem + 1:
+            while(iSize < iDirMem + 1):
                 liMemLocal.append(None);
                 iSize += 1;
 
@@ -230,8 +234,8 @@ def setValor(iDirMem, valor):
             iDirMem = valPilaMemTemporal[0] + (iDirMem - iComienzoMemTemporal);
         iSize = len(liMemTemporal);
 
-        if iSize < iDirMem:
-            while(iSize < iDirMem):
+        if iSize < iDirMem + 1:
+            while(iSize < iDirMem + 1):
                 liMemTemporal.append(None);
                 iSize += 1;
         liMemTemporal[iDirMem] = valor;
@@ -244,8 +248,8 @@ def setValor(iDirMem, valor):
         liMemCte[iDirMem - iComienzoMemCte] = valor;
     else: #Figura
         iSize = len(liMemFig);
-        if iSize < iDirMem:
-            while(iSize < iDirMem):
+        if iSize < iDirMem + 1:
+            while(iSize < iDirMem + 1):
                 liMemFig.append(None);
                 iSize += 1;
         liMemFig[iDirMem - iComienzoMemFig] = valor;
@@ -253,7 +257,9 @@ def setValor(iDirMem, valor):
 #Lector de caudruplos
 tempCuad = liCuadruplos[0];
 while tempCuad[0] != "END":
+
     instruccion = tempCuad[0];
+    #print(instruccion);
     if(instruccion == "*"):
         indOperando1 = tempCuad[1];
         indOperando2 = tempCuad[2];
@@ -560,7 +566,7 @@ while tempCuad[0] != "END":
         setValor(indResultado, operando1);
         iApuntadorCuads += 1;
     elif(instruccion == "pantalla"):
-        global ventana;
+
         indOperando1 = tempCuad[1];
         indOperando2 = tempCuad[2];
 
@@ -577,7 +583,7 @@ while tempCuad[0] != "END":
         ventana = pyglet.window.Window(operando1,operando2, "Apolo", resizable=False);
         iApuntadorCuads += 1;
     elif(instruccion == "gravedad"):
-        global espacio;
+
 
         indOperando1 = tempCuad[1];
         indOperando2 = tempCuad[2];
@@ -632,18 +638,21 @@ while tempCuad[0] != "END":
             print("Debug error: Primer parametro de la instruccion param no tiene un valor.")
             break;
 
-        setValor(valorParam, numeroParam + 21000);
+        setValor(str(numeroParam + 21000), valorParam);
         iApuntadorCuads += 1;
     elif(instruccion == "imprimir"):
         indOperando = tempCuad[1];
         valorOperando = getValor(indOperando);
-        if(valorOperando):
+        if(valorOperando == None):
             print("Debug error: Primer parametro de la instruccion imprimir no tiene un valor.")
             break;
 
         print(str(valorOperando));
         iApuntadorCuads += 1;
     elif(instruccion == "endproc"):
+        #print("top temp lim" + str(pilaMemoriaTempLim.top()[0]))
+        liMemTemporal = liMemTemporal[0 : pilaMemoriaTempLim.top()[0]];
+        liMemLocal = liMemLocal[0 : pilaMemoriaLocalLim.top()[0]];
         pilaMemoriaLocalLim.pop();
         pilaMemoriaTempLim.pop();
         iApuntadorCuads = pilaEstadosCuad.top();
@@ -652,8 +661,8 @@ while tempCuad[0] != "END":
         Operando1 = tempCuad[3];
         iApuntadorCuads = int(Operando1);
     elif(instruccion == "gosub"):
-        operando = temCuads[3];
-        pilaSaltosPendientes.push(iApuntadorCuads + 1);
+        operando = tempCuad[3];
+        pilaEstadosCuad.push(iApuntadorCuads + 1);
         iApuntadorCuads = int(operando);
 
 

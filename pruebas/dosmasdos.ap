@@ -1,0 +1,20 @@
+programa prueba;
+
+
+funciones
+entero suma(entero i, flotante j){
+    variables
+        entero iTemp;
+
+    iTemp = i + j;
+
+    regresar iTemp;
+}
+
+apolo{
+    variables
+        entero iResultado;
+
+    iResultado = suma(10,2);
+    imprimir(iResultado);
+  }
