@@ -2,19 +2,27 @@ programa prueba;
 
 
 funciones
-entero suma(entero i, flotante j){
-    variables
-        entero iTemp;
 
-    iTemp = i + j;
 
-    regresar iTemp;
+
+entero sumaEspecial(entero i){
+    variables entero iTemp;
+
+    si(i > 0){
+        iTemp = i + sumaEspecial(i - 1);
+        regresar iTemp;
+    }sino{
+        regresar 0;
+    };
+
+
 }
-
 apolo{
     variables
-        entero iResultado;
+        entero iResultado, iResultado2, iResultado3;
 
-    iResultado = suma(10,2);
-    imprimir(iResultado);
-  }
+
+    iResultado2 = sumaEspecial(10);
+    imprimir(iResultado2);
+
+}

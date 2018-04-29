@@ -24,6 +24,8 @@ iComienzoMemFig = 81000;
 pilaEstadosCuad = Pila();
 pilaMemoriaLocalLim = Pila();
 pilaMemoriaTempLim = Pila();
+liLocal = None;
+liTemp = None;
 
 
 #Arreglo con informacion de caudruplos
@@ -96,7 +98,7 @@ if __name__ == '__main__':
             #print(line);
 
 
-def getValor(iDirMem):
+def getValor(iDirMem, topLocal = None, topTemp = None):
 
     global liMemGlobal;
     global liMemLocal;
@@ -127,7 +129,11 @@ def getValor(iDirMem):
             print("Error: Variable global no inicializada.");
             return None;
     elif(iDirMem < iComienzoMemTemporal): #Local
-        valPilaMemLocal = pilaMemoriaLocalLim.top();
+        if(topLocal == None):
+            valPilaMemLocal = pilaMemoriaLocalLim.top();
+        else:
+            valPilaMemLocal = topLocal;
+
         if (valPilaMemLocal is None):
             temporal = liMemLocal[iDirMem - iComienzoMemLocal];
             if temporal != None:
@@ -136,8 +142,10 @@ def getValor(iDirMem):
                 print("Error: Variable local no inicializada.");
                 return None;
         else:
+            indTemp = valPilaMemLocal[0];
 
-            temporal = liMemLocal[valPilaMemLocal[0] + (iDirMem - iComienzoMemLocal)];
+            #print(indTemp + iDirMem - iComienzoMemTemporal);
+            temporal = liMemLocal[indTemp + (iDirMem - iComienzoMemLocal)];
             if temporal != None:
                 return temporal;
             else:
@@ -145,7 +153,11 @@ def getValor(iDirMem):
                 return None;
 
     elif(iDirMem < iComienzoMemCte): #Temporal
-        valPilaMemTemporal = pilaMemoriaTempLim.top();
+        if(topTemp == None):
+            valPilaMemTemporal = pilaMemoriaTempLim.top();
+        else:
+            valPilaMemTemporal = topTemp;
+
         if (valPilaMemTemporal is None):
             temporal = liMemTemporal[iDirMem - iComienzoMemTemporal];
             if temporal != None:
@@ -156,10 +168,10 @@ def getValor(iDirMem):
                 return None;
         else:
             indTemp = valPilaMemTemporal[0];
-            #print(indTemp);
-            #print(iDirMem);
-            #print(indTemp + (iDirMem - iComienzoMemTemporal))
-            temporal = liMemTemporal[valPilaMemTemporal[0] + (iDirMem - iComienzoMemTemporal)];
+
+            temporal = liMemTemporal[indTemp + (iDirMem - iComienzoMemTemporal)];
+
+
             if temporal != None:
                 return temporal;
             else:
@@ -181,7 +193,7 @@ def getValor(iDirMem):
             print("Error: Variable de figura no inicializada.");
             return None;
 
-def setValor(iDirMem, valor):
+def setValor(iDirMem, valor, topLocal = None, topTemp = None):
 
     global liMemGlobal;
     global liMemLocal;
@@ -211,8 +223,11 @@ def setValor(iDirMem, valor):
                 iSize += 1;
         liMemGlobal[iDirMem - iComienzoMemGlobal] = valor;
     elif(iDirMem < iComienzoMemTemporal): #Local
+        if(topLocal == None):
+            valPilaMemLocal = pilaMemoriaLocalLim.top();
+        else:
+            valPilaMemLocal = topLocal;
 
-        valPilaMemLocal = pilaMemoriaLocalLim.top();
         if(valPilaMemLocal is None):
             iDirMem = (iDirMem - iComienzoMemLocal);
         else:
@@ -227,7 +242,10 @@ def setValor(iDirMem, valor):
 
         liMemLocal[iDirMem] = valor;
     elif(iDirMem < iComienzoMemCte): #Temporal
-        valPilaMemTemporal = pilaMemoriaTempLim.top();
+        if(topTemp == None):
+            valPilaMemTemporal = pilaMemoriaTempLim.top();
+        else:
+            valPilaMemTemporal = None;
         if(valPilaMemTemporal is None):
             iDirMem = (iDirMem - iComienzoMemTemporal);
         else:
@@ -258,8 +276,10 @@ def setValor(iDirMem, valor):
 tempCuad = liCuadruplos[0];
 while tempCuad[0] != "END":
 
+    #print("pila ", pilaMemoriaTempLim.items);
+    #print("lista ", liMemTemporal);
     instruccion = tempCuad[0];
-    #print(instruccion);
+    #print(tempCuad);
     if(instruccion == "*"):
         indOperando1 = tempCuad[1];
         indOperando2 = tempCuad[2];
@@ -622,12 +642,19 @@ while tempCuad[0] != "END":
         varLocales = int(tempCuad[2]);
         varTemps = int(tempCuad[3]);
 
-
+        #print("lista Temporal ERA " ,liMemTemporal);
         cantVL = len(liMemLocal);
         cantVT = len(liMemTemporal);
 
-        pilaMemoriaLocalLim.push([cantVL, cantVL + varLocales]);
-        pilaMemoriaTempLim.push([cantVT, cantVT + varTemps]);
+        while(len(liMemLocal) < cantVL + varLocales):
+            liMemLocal.append(None);
+
+        while(len(liMemTemporal) < cantVT + varTemps):
+            liMemTemporal.append(None);
+
+        #print("Cant Temporal ERA " ,cantVT);
+        liLocal = [cantVL, cantVL + varLocales];
+        liTemp = [cantVT, cantVT + varTemps];
         iApuntadorCuads += 1;
     elif(instruccion == "param"):
         numeroParam = int(tempCuad[3]) - 1;
@@ -637,8 +664,8 @@ while tempCuad[0] != "END":
         if valorParam == None:
             print("Debug error: Primer parametro de la instruccion param no tiene un valor.")
             break;
-
-        setValor(str(numeroParam + 21000), valorParam);
+        #print(numeroParam + 21000 , "->", valorParam)
+        setValor(str(numeroParam + 21000), valorParam,liLocal, liTemp);
         iApuntadorCuads += 1;
     elif(instruccion == "imprimir"):
         indOperando = tempCuad[1];
@@ -651,7 +678,9 @@ while tempCuad[0] != "END":
         iApuntadorCuads += 1;
     elif(instruccion == "endproc"):
         #print("top temp lim" + str(pilaMemoriaTempLim.top()[0]))
+        #print("Pila mem temporal top: " + str(pilaMemoriaTempLim.top()[0]));
         liMemTemporal = liMemTemporal[0 : pilaMemoriaTempLim.top()[0]];
+        #print("Pila mem local top: " + str(pilaMemoriaLocalLim.top()[0]));
         liMemLocal = liMemLocal[0 : pilaMemoriaLocalLim.top()[0]];
         pilaMemoriaLocalLim.pop();
         pilaMemoriaTempLim.pop();
@@ -661,9 +690,24 @@ while tempCuad[0] != "END":
         Operando1 = tempCuad[3];
         iApuntadorCuads = int(Operando1);
     elif(instruccion == "gosub"):
+        pilaMemoriaLocalLim.push(liLocal);
+        pilaMemoriaTempLim.push(liTemp);
         operando = tempCuad[3];
         pilaEstadosCuad.push(iApuntadorCuads + 1);
         iApuntadorCuads = int(operando);
+    elif(instruccion == "gotof"):
+        indOperando = tempCuad[1];
+        valOperando = getValor(indOperando1);
+        operandoSalto = int(tempCuad[3]);
+
+        if valOperando == None:
+            print("Debug error: Primer parametro de la instruccion gotof no tiene un valor.")
+            break;
+
+        if(valOperando == False):
+            iApuntadorCuads = operandoSalto;
+        else:
+            iApuntadorCuads += 1;
 
 
 

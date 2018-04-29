@@ -33,7 +33,7 @@ reserved = {
     'dibujarLinea' : 'DIBUJAR_LINEA',
     'ciclo' : 'CICLO',
     'si' : 'SI',
-    'siNo' : 'SI_NO',
+    'sino' : 'SI_NO',
     'cuadrado' : 'CUADRADO',
     'circulo' : 'CIRCULO',
     'triangulo' : 'TRIANGULO',
@@ -281,6 +281,7 @@ contadorVariables = 0;
 contadorParametros = 0;
 apuntadorFuncion = None;
 contadorTemporales  = 0;
+liCuadsLlamadasRec = [];
 
 #Constantes y direcciones de Memoria
 tablaMemCte = OrderedDict();
@@ -545,9 +546,8 @@ def imprimirError(error, linea):
 #   Retorno: Si encuentra que el id ya habia sido declarado regresa VERDADERO,
 #       Si no, regresa FALSO.
 def checarDefFunc(id):
-  global tablaDeSimbolos
-  global idActual
-
+  global tablaDeSimbolos;
+  #imprimirContenidoTablaSimbolos(tablaDeSimbolos);
   return tablaDeSimbolos.existe(id);
 
 # checarDefVar
@@ -822,12 +822,16 @@ def p_compSemMasMenosYGenCuad(t):
 
         if(tipoResultado != 0):
             if(indiceTemporal < limMemTemporal):
+
                 cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
+                tipoResultado = traductorValoresCubo[tipoResultado];
+
+
 
                 contadorTemporales += 1;
                 listaDeCuadruplos.append(cuadruplo);
                 pilaOperandos.push(indiceTemporal);
-                tipoResultado = traductorValoresCubo[tipoResultado];
+
                 pilaTipos.push(tipoResultado);
 
                 indiceTemporal += 1;
@@ -1428,6 +1432,7 @@ def p_generarCuadCondicionGotoFIf(t):
     else:
 
         #Imprimir error de type missmatch
+        print("generarCuadCondicionGotoFIf : 1412");
         imprimirError(10, None);
 
 #2
@@ -1542,14 +1547,16 @@ def p_genCuadRetorno(t):
     global pilaOperandos;
     global alcanceActual;
     global tablaDeSimbolos;
-
+    global traductorIndicesOperandosCubo;
     opRet = pilaOperadores.top()
     pilaOperadores.pop();
     if(opRet == "retorno"):
         thisFunc = tablaDeSimbolos.obtener(alcanceActual);
         tipoRes = pilaTipos.top();
         pilaTipos.pop();
-        if(thisFunc.tipo == tipoRes):
+        tipoFun = traductorIndicesOperandosCubo[thisFunc.tipo];
+        tipoOtro = traductorIndicesOperandosCubo[tipoRes];
+        if(tipoFun == tipoOtro):
             #(pilaOperandos.items);
 
             dirValorGlobalFunc = tablaDeSimbolos.obtener("global").tablaVariables.obtener("_"+thisFunc.nombre).dirMem;
@@ -1561,7 +1568,7 @@ def p_genCuadRetorno(t):
             listaDeCuadruplos.append(cuad);
             contadorCuadruplos += 1;
         else:
-
+            print("genCuadRetorno - 1538");
             imprimirError(10,None);
 
 
@@ -1604,7 +1611,8 @@ def p_checarSiExisteFuncion(t):
     '''
     checarSiExisteFuncion : empty
     '''
-    global idActual
+    global idActual;
+
     if(checarDefFunc(idActual) is False):
         imprimirError(1, None);
 
@@ -1619,9 +1627,13 @@ def p_generarAccionERA(t):
     global idActual;
     global apuntadorFuncion;
     global tablaDeSimbolos;
+    global liCuadsLlamadasRec;
+    global alcanceActual
 
     apuntadorFuncion = tablaDeSimbolos.obtener(idActual);
     cuad = ["era", idActual, apuntadorFuncion.cantVarLocales, apuntadorFuncion.cantTemp];
+    if(alcanceActual == idActual):
+        liCuadsLlamadasRec.append(contadorCuadruplos);
     listaDeCuadruplos.append(cuad);
     contadorCuadruplos += 1;
     contadorParametros = 1;
@@ -1653,7 +1665,7 @@ def p_generarAccionParam(t):
          imprimirError(11, None);
     elif(argTipo != paramTipo):
         #Error type missmatch
-
+        print("generarAccionParam - 1634")
         imprimirError(10, None);
 
     else:
@@ -2048,6 +2060,7 @@ def p_liberaTablaVars(t):
     global listaDeCuadruplos;
     global indiceTemporal;
     global contadorTemporales;
+    global liCuadsLlamadasRec;
     simboloFunc = tablaDeSimbolos.obtener(alcanceActual);
     if(simboloFunc == None):
         imprimirError(1); #Error funcion no existe
@@ -2056,6 +2069,12 @@ def p_liberaTablaVars(t):
         simboloFunc.cantVarLocales = indiceLocal - 21000;
         simboloFunc.cantTemp = indiceTemporal - 41000;
 
+        for item in liCuadsLlamadasRec:
+            listaDeCuadruplos[item][2] = simboloFunc.cantVarLocales;
+            listaDeCuadruplos[item][3] = simboloFunc.cantTemp;
+
+        del(liCuadsLlamadasRec[:]);
+        liCuadsLlamadasRec = [];
         cuad = ["endproc", None, None, None];
         listaDeCuadruplos.append(cuad);
         contadorCuadruplos += 1;
@@ -2169,14 +2188,14 @@ def p_retornoAuxiliar1(t):
 #     PANTALLA     #############################################################
 def p_pantalla(t):
   '''
-  pantalla : PANTALLA L_PAREN exp COMMA exp R_PAREN SEMICOLON agregarCuadYCompSemPantalla
+  pantalla : PANTALLA L_PAREN agregarPisoFalso exp eliminarPisoFalso COMMA agregarPisoFalso exp eliminarPisoFalso R_PAREN SEMICOLON agregarCuadYCompSemPantalla
   '''
 
 
 #     GRAVEDAD     #############################################################
 def p_gravedad(t):
   '''
-  gravedad : GRAVEDAD L_PAREN exp COMMA exp R_PAREN SEMICOLON agregarCuadYCompSemGravedad
+  gravedad : GRAVEDAD L_PAREN agregarPisoFalso exp eliminarPisoFalso COMMA agregarPisoFalso exp eliminarPisoFalso R_PAREN SEMICOLON agregarCuadYCompSemGravedad
   '''
 
 
@@ -2574,13 +2593,13 @@ def p_estatuto(t):
 #     DIBUJAR     ##############################################################
 def p_dibujar(t):
   '''
-  dibujar : dibujarAuxiliar1 COMMA exp COMMA exp R_PAREN SEMICOLON agregarCuadDibujarGen
+  dibujar : dibujarAuxiliar1 COMMA agregarPisoFalso exp eliminarPisoFalso COMMA agregarPisoFalso exp eliminarPisoFalso R_PAREN SEMICOLON agregarCuadDibujarGen
   '''
 
 def p_dibujarAuxiliar1(t):
   '''
   dibujarAuxiliar1 : DIBUJAR agregarOperadorDibujar L_PAREN ID checarSiExisteFiguraId agregarOperandoFigura
-  | DIBUJAR_LINEA agregarOperadorDibujarLinea L_PAREN ID checarSiExisteFiguraId agregarOperandoFigura COMMA exp COMMA exp
+  | DIBUJAR_LINEA agregarOperadorDibujarLinea L_PAREN ID checarSiExisteFiguraId agregarOperandoFigura COMMA agregarPisoFalso exp eliminarPisoFalso COMMA agregarPisoFalso exp eliminarPisoFalso
   '''
 
 
@@ -2662,7 +2681,7 @@ def p_asignacionAuxiliar2(t):
 #   LLAMADA ELEM ARREGLO ####################################################
 def p_elemArr (t):
     '''
-    elemArr : ID checarDefID agregarIdHaciaPilas agregarLongLista L_BRACKETS exp R_BRACKETS agregarCuadsElemArr
+    elemArr : ID checarDefID agregarIdHaciaPilas agregarLongLista L_BRACKETS agregarPisoFalso exp  eliminarPisoFalso R_BRACKETS agregarCuadsElemArr
     '''
 
 def p_agregarCuadsElemArr(t):
@@ -2781,8 +2800,8 @@ def p_llamadaAuxiliar1(t):
 
 def p_llamadaAuxiliar2(t):
   '''
-  llamadaAuxiliar2 : exp
-  | sp_cte agregarOperando
+  llamadaAuxiliar2 : agregarPisoFalso exp eliminarPisoFalso
+  | agregarPisoFalso sp_cte agregarOperando eliminarPisoFalso
   '''
 
 def p_llamadaAuxiliar3(t):
@@ -2950,7 +2969,7 @@ def p_factorAuxiliar4(t):
             else:
                 imprimirError(16,None);
         else:
-
+            print("factorAuxiliar4 - 2958");
             imprimirError(10, None);
 
 
@@ -3001,7 +3020,7 @@ def p_comprobarTipoElem(t):
 
     if(listaTipoTrad != elemTipoTrad):
         #No coinciden los tipos, ERROR!
-
+        print("comprobarTipoElem - 3009")
         imprimirError(10,None);
 
     else:
@@ -3039,7 +3058,7 @@ def p_reiniciarContadorIndices(t):
     temp2 = temp.split();
     if(temp2[0] != "lista"):
         #error tipos no coinciden!
-
+        print("reiniciarContadorIndices - 3047");
         imprimirError(10,None);
 
     else:
