@@ -37,7 +37,7 @@ entero assd(entero i, flotante j){
 
     bAux = verdadero;
     tAux = "asdasd";
-
+    iS = 10;
     regresar iS;
 }
 entero assd2(entero i, flotante j){
@@ -48,14 +48,16 @@ entero assd2(entero i, flotante j){
         lista entero[10] liE;
     bAux = verdadero;
     tAux = "asdasd";
-
+    iS = 2;
     regresar iS;
 }
 apolo{
+    entGlobal1 = 10;
     bGlobal1 = verdadero;
     tGlobal1 = "asdasd";
     bGlobal1 = 10 < 20;
     entGlobal1 += 10 * 2 - 3.0;
+    fGlobal1 = 0.0;
     fGlobal1 -= 10 * 2 - 3.0;
 
     bGlobal1 = verdadero;
@@ -79,20 +81,23 @@ apolo{
     imprimir("hola");
     imprimir(verdadero);
     imprimir(entGlobal1);
+    entGlobal2 = 5;
     imprimir(10-3, 10, "hola", entGlobal2);
 
-    dibujar(miCaja, 10.0,10.0);
-    dibujarLinea(miLinea, 10.0, 10.0, 10.0, 10.0);
+
 
     si(10 < 20){
         imprimir("asdasd");
     };
 
+    dibujar(miCaja, 100.0,100.0);
+    dibujarLinea(miLinea, 500.0, 500.0, 600.0, 500.0);
 
 
     si(10 < 20){
-        imprimir("asdasd");
-    }siNo{
+        imprimir("if");
+
+    }sino{
         imprimir("asdasd");
         imprimir("asdasd");
     };
@@ -100,6 +105,7 @@ apolo{
 
     ciclo(entGlobal1 = 0; entGlobal1 < 10; entGlobal1+=1){
         imprimir(entGlobal1);
+        imprimir(":)");
 
     }
 

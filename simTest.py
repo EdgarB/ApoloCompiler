@@ -11,8 +11,9 @@ options = DrawOptions()
 
 space = pymunk.Space();
 space.gravity = 0, -1000;
-
-poly = pymunk.Poly.create_box(None, size=(25,25));
+x = 25.0;
+y = int(25.0);
+poly = pymunk.Poly.create_box(None, size=(x,y));
 moment = pymunk.moment_for_poly(10,poly.get_vertices())
 print(moment)
 body = pymunk.Body(1,moment, pymunk.Body.DYNAMIC);

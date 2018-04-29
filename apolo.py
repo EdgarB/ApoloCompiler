@@ -1138,18 +1138,21 @@ def p_agregarCuadYCompSemAsignacion(t):
                 else:
                     imprimirError(16, None);
             elif(tipoIzquierdo == "float" or  tipoIzquierdo == "flotante"):
+
                 if(indiceTemporal < limMemTemporal):
+
                     cuad = ["cast", operandoDerecho, "float", indiceTemporal];
                     listaDeCuadruplos.append(cuad);
 
                     cuadruplo = [operador, indiceTemporal, None, operandoIzquierdo];
-                    listaDeCuadruplos.append(cuad);
+                    listaDeCuadruplos.append(cuadruplo);
                     contadorCuadruplos += 2;
                     indiceTemporal += 1;
                     contadorTemporales += 1;
                 else:
                     imprimirError(16, None);
             else:
+
                 cuadruplo = [operador, operandoDerecho, None, operandoIzquierdo];
 
                 listaDeCuadruplos.append(cuadruplo);
@@ -2606,13 +2609,13 @@ def p_dibujarAuxiliar1(t):
 #     CICLO     ################################################################
 def p_ciclo(t):
   '''
-  ciclo : CICLO L_PAREN asignacion SEMICOLON agregarAPilaSaltosRegresoCiclo expresion SEMICOLON generarCuadCondCiclo incremento R_PAREN bloque generarCuadRetCiclo
+  ciclo : CICLO L_PAREN agregarPisoFalso asignacion eliminarPisoFalso SEMICOLON agregarAPilaSaltosRegresoCiclo agregarPisoFalso expresion eliminarPisoFalso SEMICOLON generarCuadCondCiclo agregarPisoFalso incremento eliminarPisoFalso R_PAREN bloque generarCuadRetCiclo
   '''
 
 #     CONDICION     ###########################################################
 def p_condicion(t):
   '''
-  condicion : SI L_PAREN expresion R_PAREN generarCuadCondicionGotoFIf bloque condicionAuxiliar1 SEMICOLON llenarGotof
+  condicion : SI L_PAREN agregarPisoFalso expresion eliminarPisoFalso R_PAREN generarCuadCondicionGotoFIf bloque condicionAuxiliar1 SEMICOLON llenarGotof
   '''
 
 def p_condicionAuxiliar1(t):
@@ -2884,12 +2887,14 @@ def p_factorAuxiliar2(t):
 
 
 
-    if(t[1] in tablaMemCte):
-        pilaOperandos.push(tablaMemCte[t[1]]);
+    if(str(t[1]) in tablaMemCte ):
+        
+
+        pilaOperandos.push(tablaMemCte[str(t[1])]);
     else:
         if(indiceCTE < limMemCTE):
 
-            tablaMemCte[t[1]] = indiceCTE;
+            tablaMemCte[str(t[1])] = indiceCTE;
             pilaOperandos.push(indiceCTE);
             indiceCTE += 1;
         else:

@@ -1,0 +1,13 @@
+programa prueba;
+
+
+apolo{
+    variables
+        entero i, iResultado2, iResultado3;
+
+    ciclo(i = 0; i < 10; i+=1){
+        imprimir(i);
+    }
+
+
+}

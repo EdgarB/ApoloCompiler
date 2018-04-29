@@ -4,7 +4,9 @@ import os;
 import pymunk;
 import time;
 import pyglet;
+import math as math;
 from classes.pila import Pila
+from pymunk.pyglet_util import DrawOptions
 
 #Arreglos que almacenan informacion
 liMemGlobal = [];
@@ -55,11 +57,19 @@ def encontrarDobleEncomillado(line):
         return True;
     else:
         return False;
+def encontrarPunto(linea):
+
+    for c in linea:
+        if c == '.':
+            return True;
+
+    return False;
 
 #Leer archivo de cuadruplos y de constantes, guardarlos en sus arreglos
 # correspondientes.
 if __name__ == '__main__':
-
+    colores = ["rojo", "verde", "azul", "amarillo", "rosa", "violeta"];
+    tiposFigura = ["cuadrado", "triangulo", "circulo", "linea"];
     lenInp = len(sys.argv);
     if (lenInp > 1):
         archivoCuads = sys.argv[1];
@@ -85,11 +95,13 @@ if __name__ == '__main__':
 
             if line == "Verdadero" or line == "verdadero" or line == "True" or line == "true":
                 line = True;
+            elif line in colores or line in tiposFigura:
+                line = line;
             elif line == "Falso" or line == "falso" or line == "False" or line == "false":
                 line = False;
             elif encontrarDobleEncomillado(line) == True:
                 line = line.replace('"','');
-            elif line.find(".") == 1:
+            elif encontrarPunto(line) == True:
                 line = float(line);
             else:
                 line = int(line);
@@ -113,6 +125,7 @@ def getValor(iDirMem, topLocal = None, topTemp = None):
     global iComienzoMemFig;
     global pilaMemoriaTempLim;
     global pilaMemoriaLocalLim;
+    iDirMem = str(iDirMem);
     if(iDirMem[0]  == "("):
         limiteInd = len(iDirMem) - 1;
         iDirMem = getValor(iDirMem[1:limiteInd]);
@@ -160,6 +173,7 @@ def getValor(iDirMem, topLocal = None, topTemp = None):
 
         if (valPilaMemTemporal is None):
             temporal = liMemTemporal[iDirMem - iComienzoMemTemporal];
+        
             if temporal != None:
                 return temporal;
             else:
@@ -210,6 +224,7 @@ def setValor(iDirMem, valor, topLocal = None, topTemp = None):
     global pilaMemoriaTempLim;
     global pilaMemoriaLocalLim;
 
+    iDirMem = str(iDirMem);
     if(iDirMem[0]  == "("):
         limiteInd = len(iDirMem) - 1;
         iDirMem = getValor(iDirMem[1:limiteInd]);
@@ -245,7 +260,8 @@ def setValor(iDirMem, valor, topLocal = None, topTemp = None):
         if(topTemp == None):
             valPilaMemTemporal = pilaMemoriaTempLim.top();
         else:
-            valPilaMemTemporal = None;
+            valPilaMemTemporal = topTemp;
+
         if(valPilaMemTemporal is None):
             iDirMem = (iDirMem - iComienzoMemTemporal);
         else:
@@ -396,6 +412,7 @@ while tempCuad[0] != "END":
             resultado = False;
 
         setValor(indResultado, resultado);
+
         iApuntadorCuads += 1;
     elif(instruccion == "<="):
         indOperando1 = tempCuad[1];
@@ -552,6 +569,9 @@ while tempCuad[0] != "END":
         if operando1 == None:
             print("Error: Operando derecho del operador mas igual no tiene un valor.")
             break;
+        if resultado == None:
+            print("Error: Operando izquierdo del operador mas igual no tiene un valor.")
+            break;
 
         resultado = resultado + operando1;
         setValor(indResultado, resultado);
@@ -656,13 +676,35 @@ while tempCuad[0] != "END":
         liLocal = [cantVL, cantVL + varLocales];
         liTemp = [cantVT, cantVT + varTemps];
         iApuntadorCuads += 1;
+    elif(instruccion == "ver"):
+        indOperando1 = tempCuad[1];
+        operando2 = int(tempCuad[2]);
+        operando3 = int(tempCuad[3]);
+
+        operando1 = getValor(indOperando1);
+        if(operando1 == None):
+            print("Error : indice del arreglo no tiene asignado un valor.");
+            break;
+
+        if(not (operando1 <= operando3 and operando2 <= operando1)):
+            print("Error : indice del arreglo fuera del rango establecido.")
+            break;
+
+
+
+
+
+        iApuntadorCuads += 1;
     elif(instruccion == "param"):
         numeroParam = int(tempCuad[3]) - 1;
         indValorParam = tempCuad[1];
 
         valorParam = getValor(indValorParam);
         if valorParam == None:
-            print("Debug error: Primer parametro de la instruccion param no tiene un valor.")
+            print("Debug error: parametro " + str(numeroParam + 1) + " de la instruccion param no tiene un valor.")
+            print(tempCuad)
+            print(numeroParam);
+            print(indValorParam);
             break;
         #print(numeroParam + 21000 , "->", valorParam)
         setValor(str(numeroParam + 21000), valorParam,liLocal, liTemp);
@@ -697,23 +739,195 @@ while tempCuad[0] != "END":
         iApuntadorCuads = int(operando);
     elif(instruccion == "gotof"):
         indOperando = tempCuad[1];
-        valOperando = getValor(indOperando1);
+        valOperando = getValor(indOperando);
         operandoSalto = int(tempCuad[3]);
 
         if valOperando == None:
             print("Debug error: Primer parametro de la instruccion gotof no tiene un valor.")
             break;
 
-        if(valOperando == False):
+        if(valOperando is False):
+
             iApuntadorCuads = operandoSalto;
         else:
+
             iApuntadorCuads += 1;
+    elif(instruccion == "dibujar"):
+        dirBase = int(tempCuad[1]);
+        indPosX = tempCuad[2];
+        indPosY = tempCuad[3];
+
+        valPosX = getValor(indPosX);
+        if(valPosX == None):
+            print("Debug error: Segundo parametro de la instruccion dibujar no tiene valor");
+            break;
+
+        valPosY = getValor(indPosY);
+        if(valPosY == None):
+            print("Debug error: Tercer parametro de la instruccion dibujar no tiene valor");
+            break;
+
+        #Tomar valores de la figura
+        valTipo = getValor(dirBase);
+        if(valTipo == None):
+            print("Debug error: valTipo no tiene valor");
+            break;
+
+        valMedida = getValor(dirBase + 1);
+        if(valMedida == None):
+            print("Debug error: valMedida no tiene valor");
+            break;
+        valFriccion = getValor(dirBase + 2);
+        if(valFriccion == None):
+            print("Debug error: valFriccion no tiene valor");
+            break;
+        valMasa = getValor(dirBase + 3);
+        if(valMasa == None):
+            print("Debug error: valMasa no tiene valor");
+            break;
+        valRebote = getValor(dirBase + 4);
+        if(valRebote == None):
+            print("Debug error: valRebote no tiene valor");
+            break;
+        valMovible = getValor(dirBase + 5);
+        if(valMovible == None):
+            print("Debug error: valMovible no tiene valor");
+            break;
+        valColor = getValor(dirBase + 6);
+        if(valColor == None):
+            print("Debug error: valColor no tiene valor");
+            break;
+
+        if(valMovible):
+            valMovible = pymunk.Body.DYNAMIC;
+        else:
+            valMovible = pymunk.Body.STATIC;
+        #Crear figura y guardarla para su futuro despliegue
+        if(valTipo == "cuadrado"):
+            cajaForma = pymunk.Poly.create_box(None, size=(valMedida,valMedida));
+            cajaMomento = pymunk.moment_for_poly(valMasa,cajaForma.get_vertices());
+            cajaCuerpo = pymunk.Body(valMasa,cajaMomento, valMovible);
+            if(valFriccion > 1):
+                valFriccion = 1;
+            cajaForma.friction = valFriccion;
+            cajaCuerpo.position = valPosX, valPosY;
+            cajaForma.body = cajaCuerpo
+
+            espacio.add(cajaCuerpo, cajaForma);
+
+
+        elif(valTipo == "triangulo"):
+            #Generar vertices de acuerdo a lo ingresado por el usuario
+            bT = math.sqrt((valMedida * valMedida) - ((valMedida * valMedida * valMedida * valMedida)/4));
+            A = (valPosX - (valMedida/2), valPosY - (bT/2));
+            B = (valPosX + (valMedida/2), valPosY - (bT/2));
+            C = (valPosX, valPosY + (bT/2));
+
+            trianguloForma = pymunk.Poly(None, A,B,C);
+
+            trianguloMomento = pymunk.moment_for_poly(valMasa,trianguloForma.get_vertices());
+            trianguloCuerpo = pymunk.Body(valMasa,trianguloMomento, valMovible);
+            if(valFriccion > 1):
+                valFriccion = 1.0;
+            trianguloForma.friction = valFriccion; #Coeficiente de friccion de 0.0 a 1.0
+            trianguloCuerpo.position = valPosX, valPosY;
+            trianguloForma.body = trianguloCuerpo;
+
+            espacio.add(trianguloCuerpo, trianguloForma);
 
 
 
+        else: #circulo
+            circuloMomento = pymunk.moment_for_circle(valMasa, 0, valMedida);
+            circuloCuerpo = pymunk.Body(valMasa, circuloMomento);
+            circuloCuerpo.position = valPosX, valPosY;
+            circuloForma = pymunk.Circle(circuloCuerpo, valMedida);
 
+            espacio.add(circuloCuerpo, circuloForma);
 
+        iApuntadorCuads += 1;
+    elif(instruccion == "dibujarLinea"):
+        dirBase = int(tempCuad[1]);
+        indPosX1 = tempCuad[2];
+        indPosY1 = tempCuad[3];
 
+        tempCuad = liCuadruplos[iApuntadorCuads + 1];
+        indPosX2 = tempCuad[2];
+        indPosY2 = tempCuad[3];
+
+        valPosX1 = getValor(indPosX1);
+        if(valPosX1 == None):
+            print("Debug error: Segundo parametro de la instruccion dibujarLinea no tiene valor");
+            break;
+
+        valPosY1 = getValor(indPosY1);
+        if(valPosY1 == None):
+            print("Debug error: Tercer parametro de la instruccion dibujarLinea no tiene valor");
+            break;
+
+        valPosX2 = getValor(indPosX2);
+        if(valPosX2 == None):
+            print("Debug error: Cuarto parametro de la instruccion dibujarLinea no tiene valor");
+            break;
+
+        valPosY2 = getValor(indPosY2);
+        if(valPosY2 == None):
+            print("Debug error: Quinto parametro de la instruccion dibujarLinea no tiene valor");
+            break;
+
+        #Tomar valores de la figura
+        valTipo = getValor(dirBase);
+        if(valTipo == None):
+            print("Debug error: valTipo no tiene valor");
+            break;
+
+        valMedida = getValor(dirBase + 1);
+        if(valMedida == None):
+            print("Debug error: valMedida no tiene valor");
+            break;
+        valFriccion = getValor(dirBase + 2);
+        if(valFriccion == None):
+            print("Debug error: valFriccion no tiene valor");
+            break;
+        valMasa = getValor(dirBase + 3);
+        if(valMasa == None):
+            print("Debug error: valMasa no tiene valor");
+            break;
+        valRebote = getValor(dirBase + 4);
+        if(valRebote == None):
+            print("Debug error: valRebote no tiene valor");
+            break;
+        valMovible = getValor(dirBase + 5);
+        if(valMovible == None):
+            print("Debug error: valMovible no tiene valor");
+            break;
+        valColor = getValor(dirBase + 6);
+        if(valColor == None):
+            print("Debug error: valColor no tiene valor");
+            break;
+
+        lineaMomento = pymunk.moment_for_segment(valMasa, (valPosX1, valPosY1), (valPosX2, valPosY2), 2);
+        lineaCuerpo = pymunk.Body = pymunk.Body(valMasa, lineaMomento);
+        lineaForma = pymunk.Segment(lineaCuerpo,(valPosX1, valPosY1), (valPosX2, valPosY2), 2);
+        lineaCuerpo.position = valPosX, valPosY;
+
+        espacio.add(lineaCuerpo, lineaForma);
+
+        iApuntadorCuads += 2;
 
 
     tempCuad = liCuadruplos[iApuntadorCuads];
+
+options = DrawOptions();
+if(ventana != None):
+    @ventana.event
+    def on_draw():
+        ventana.clear();
+        espacio.debug_draw(options);
+
+    def update(dt):
+        espacio.step(dt)
+
+if(ventana != None and tempCuad[0] == "END"):
+    pyglet.clock.schedule_interval(update, 1.0/60);
+    pyglet.app.run();
