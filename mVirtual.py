@@ -40,7 +40,7 @@ iApuntadorCuads = 0;
 ventana = None;
 espacio = None;
 
-
+colores = {"rojo": (255, 117,117, 255), "verde":(117, 255, 151, 255), "azul" : (117,220, 255,255), "amarillo":(248,255,117,255), "rosa":(255,117,165,255), "violeta":(188,117,255,255)};
 
 #Inicializando valores por defecto pygles y Pymunk
 espacio = pymunk.Space();
@@ -68,7 +68,7 @@ def encontrarPunto(linea):
 #Leer archivo de cuadruplos y de constantes, guardarlos en sus arreglos
 # correspondientes.
 if __name__ == '__main__':
-    colores = ["rojo", "verde", "azul", "amarillo", "rosa", "violeta"];
+
     tiposFigura = ["cuadrado", "triangulo", "circulo", "linea"];
     lenInp = len(sys.argv);
     if (lenInp > 1):
@@ -173,7 +173,7 @@ def getValor(iDirMem, topLocal = None, topTemp = None):
 
         if (valPilaMemTemporal is None):
             temporal = liMemTemporal[iDirMem - iComienzoMemTemporal];
-        
+
             if temporal != None:
                 return temporal;
             else:
@@ -232,11 +232,12 @@ def setValor(iDirMem, valor, topLocal = None, topTemp = None):
 
     if(iDirMem < iComienzoMemLocal): #Global
         iSize = len(liMemGlobal);
+        iDirMem = iDirMem - iComienzoMemGlobal;
         if iSize < iDirMem + 1:
             while(iSize < iDirMem + 1):
                 liMemGlobal.append(None);
                 iSize += 1;
-        liMemGlobal[iDirMem - iComienzoMemGlobal] = valor;
+        liMemGlobal[iDirMem] = valor;
     elif(iDirMem < iComienzoMemTemporal): #Local
         if(topLocal == None):
             valPilaMemLocal = pilaMemoriaLocalLim.top();
@@ -275,18 +276,20 @@ def setValor(iDirMem, valor, topLocal = None, topTemp = None):
         liMemTemporal[iDirMem] = valor;
     elif(iDirMem < iComienzoMemFig): #Cte
         iSize = len(liMemCte);
-        if iSize < iDirMem:
+        iDirMem = iDirMem - iComienzoMemCte;
+        if iSize < iDirMem + 1:
             while(iSize < iDirMem):
                 liMemCte.append(None);
                 iSize += 1;
-        liMemCte[iDirMem - iComienzoMemCte] = valor;
+        liMemCte[iDirMem] = valor;
     else: #Figura
         iSize = len(liMemFig);
+        iDirMem = iDirMem - iComienzoMemFig;
         if iSize < iDirMem + 1:
             while(iSize < iDirMem + 1):
                 liMemFig.append(None);
                 iSize += 1;
-        liMemFig[iDirMem - iComienzoMemFig] = valor;
+        liMemFig[iDirMem] = valor;
 
 #Lector de caudruplos
 tempCuad = liCuadruplos[0];
@@ -757,6 +760,8 @@ while tempCuad[0] != "END":
         indPosX = tempCuad[2];
         indPosY = tempCuad[3];
 
+
+        print(liMemFig);
         valPosX = getValor(indPosX);
         if(valPosX == None):
             print("Debug error: Segundo parametro de la instruccion dibujar no tiene valor");
@@ -773,26 +778,33 @@ while tempCuad[0] != "END":
             print("Debug error: valTipo no tiene valor");
             break;
 
+
         valMedida = getValor(dirBase + 1);
         if(valMedida == None):
             print("Debug error: valMedida no tiene valor");
             break;
+
         valFriccion = getValor(dirBase + 2);
         if(valFriccion == None):
             print("Debug error: valFriccion no tiene valor");
             break;
+
+
         valMasa = getValor(dirBase + 3);
         if(valMasa == None):
             print("Debug error: valMasa no tiene valor");
             break;
+
         valRebote = getValor(dirBase + 4);
         if(valRebote == None):
             print("Debug error: valRebote no tiene valor");
             break;
+
         valMovible = getValor(dirBase + 5);
         if(valMovible == None):
             print("Debug error: valMovible no tiene valor");
             break;
+
         valColor = getValor(dirBase + 6);
         if(valColor == None):
             print("Debug error: valColor no tiene valor");
@@ -811,8 +823,10 @@ while tempCuad[0] != "END":
                 valFriccion = 1;
             cajaForma.friction = valFriccion;
             cajaCuerpo.position = valPosX, valPosY;
-            cajaForma.body = cajaCuerpo
+            cajaForma.body = cajaCuerpo;
 
+            
+            cajaForma.color = colores[valColor];
             espacio.add(cajaCuerpo, cajaForma);
 
 
@@ -832,6 +846,7 @@ while tempCuad[0] != "END":
             trianguloForma.friction = valFriccion; #Coeficiente de friccion de 0.0 a 1.0
             trianguloCuerpo.position = valPosX, valPosY;
             trianguloForma.body = trianguloCuerpo;
+            trianguloForma.color = colores[valColor];
 
             espacio.add(trianguloCuerpo, trianguloForma);
 
@@ -842,7 +857,7 @@ while tempCuad[0] != "END":
             circuloCuerpo = pymunk.Body(valMasa, circuloMomento);
             circuloCuerpo.position = valPosX, valPosY;
             circuloForma = pymunk.Circle(circuloCuerpo, valMedida);
-
+            circuloForma.color = colores[valColor];
             espacio.add(circuloCuerpo, circuloForma);
 
         iApuntadorCuads += 1;
@@ -909,6 +924,7 @@ while tempCuad[0] != "END":
         lineaMomento = pymunk.moment_for_segment(valMasa, (valPosX1, valPosY1), (valPosX2, valPosY2), 2);
         lineaCuerpo = pymunk.Body = pymunk.Body(valMasa, lineaMomento);
         lineaForma = pymunk.Segment(lineaCuerpo,(valPosX1, valPosY1), (valPosX2, valPosY2), 2);
+        lineaForma.color = colores[valColor];
         lineaCuerpo.position = valPosX, valPosY;
 
         espacio.add(lineaCuerpo, lineaForma);

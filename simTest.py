@@ -14,6 +14,7 @@ space.gravity = 0, -1000;
 x = 25.0;
 y = int(25.0);
 poly = pymunk.Poly.create_box(None, size=(x,y));
+poly.color = (0, 255, 0, 255);
 moment = pymunk.moment_for_poly(10,poly.get_vertices())
 print(moment)
 body = pymunk.Body(1,moment, pymunk.Body.DYNAMIC);

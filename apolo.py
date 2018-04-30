@@ -2415,7 +2415,6 @@ def p_creaCuadCrearFig(t):
     global limMemCTE;
     global tablaMemCte;
     global alcanceActual;
-
     simbFig = obtenerContSimb(idActual, alcanceActual);
 
     if(simbFig != None):
@@ -2555,7 +2554,7 @@ def p_creaCuadCrearFig(t):
                     else:
                         imprimirError(16, None);
             else:
-                cuad = ["=", simbFig.rebote, None, indiceFigura + 6];
+                cuad = ["=", simbFig.color, None, indiceFigura + 6];
                 listaDeCuadruplos.append(cuad);
 
             indiceFigura += 7;
@@ -2888,7 +2887,7 @@ def p_factorAuxiliar2(t):
 
 
     if(str(t[1]) in tablaMemCte ):
-        
+
 
         pilaOperandos.push(tablaMemCte[str(t[1])]);
     else:
