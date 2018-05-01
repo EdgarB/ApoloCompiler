@@ -3249,7 +3249,4 @@ if __name__ == '__main__':
 
     constFile.close();
 
-
-
-
     print("Parseo correcto");

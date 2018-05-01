@@ -4,10 +4,10 @@ import os;
 import pymunk;
 import time;
 import pyglet;
-import math as math;
-from classes.pila import Pila
-from pymunk.pyglet_util import DrawOptions
 
+from classes.pila import Pila;
+from pymunk.pyglet_util import DrawOptions;
+from math import sqrt;
 #Arreglos que almacenan informacion
 liMemGlobal = [];
 liMemLocal = [];
@@ -814,35 +814,38 @@ while tempCuad[0] != "END":
             valMovible = pymunk.Body.DYNAMIC;
         else:
             valMovible = pymunk.Body.STATIC;
+
+
+        if(valFriccion > 1):
+            valFriccion = 1.0;
         #Crear figura y guardarla para su futuro despliegue
         if(valTipo == "cuadrado"):
             cajaForma = pymunk.Poly.create_box(None, size=(valMedida,valMedida));
             cajaMomento = pymunk.moment_for_poly(valMasa,cajaForma.get_vertices());
             cajaCuerpo = pymunk.Body(valMasa,cajaMomento, valMovible);
-            if(valFriccion > 1):
-                valFriccion = 1;
+
             cajaForma.friction = valFriccion;
             cajaCuerpo.position = valPosX, valPosY;
             cajaForma.body = cajaCuerpo;
 
-            
+
             cajaForma.color = colores[valColor];
             espacio.add(cajaCuerpo, cajaForma);
 
 
         elif(valTipo == "triangulo"):
             #Generar vertices de acuerdo a lo ingresado por el usuario
-            bT = math.sqrt((valMedida * valMedida) - ((valMedida * valMedida * valMedida * valMedida)/4));
+            bT = sqrt((valMedida * valMedida) - ((valMedida * valMedida)/4));
             A = (valPosX - (valMedida/2), valPosY - (bT/2));
             B = (valPosX + (valMedida/2), valPosY - (bT/2));
             C = (valPosX, valPosY + (bT/2));
 
-            trianguloForma = pymunk.Poly(None, A,B,C);
+            trianguloForma = pymunk.Poly(None, (A,B,C));
 
             trianguloMomento = pymunk.moment_for_poly(valMasa,trianguloForma.get_vertices());
+
             trianguloCuerpo = pymunk.Body(valMasa,trianguloMomento, valMovible);
-            if(valFriccion > 1):
-                valFriccion = 1.0;
+
             trianguloForma.friction = valFriccion; #Coeficiente de friccion de 0.0 a 1.0
             trianguloCuerpo.position = valPosX, valPosY;
             trianguloForma.body = trianguloCuerpo;
@@ -858,6 +861,7 @@ while tempCuad[0] != "END":
             circuloCuerpo.position = valPosX, valPosY;
             circuloForma = pymunk.Circle(circuloCuerpo, valMedida);
             circuloForma.color = colores[valColor];
+            circuloForma.friction = valFriccion
             espacio.add(circuloCuerpo, circuloForma);
 
         iApuntadorCuads += 1;
