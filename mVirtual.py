@@ -761,7 +761,7 @@ while tempCuad[0] != "END":
         indPosY = tempCuad[3];
 
 
-        print(liMemFig);
+
         valPosX = getValor(indPosX);
         if(valPosX == None):
             print("Debug error: Segundo parametro de la instruccion dibujar no tiene valor");
@@ -818,6 +818,14 @@ while tempCuad[0] != "END":
 
         if(valFriccion > 1):
             valFriccion = 1.0;
+        elif(valFriccion < 0):
+            valFriccion = 0.0;
+
+        if(valRebote > 1):
+            valRebote = 1.0;
+        elif(valRebote < 0):
+            valRebote = 0.0;
+
         #Crear figura y guardarla para su futuro despliegue
         if(valTipo == "cuadrado"):
             cajaForma = pymunk.Poly.create_box(None, size=(valMedida,valMedida));
@@ -827,7 +835,8 @@ while tempCuad[0] != "END":
             cajaForma.friction = valFriccion;
             cajaCuerpo.position = valPosX, valPosY;
             cajaForma.body = cajaCuerpo;
-
+            cajaForma.elasticity = valRebote;
+            cajaForma.friction = valFriccion;
 
             cajaForma.color = colores[valColor];
             espacio.add(cajaCuerpo, cajaForma);
@@ -836,32 +845,33 @@ while tempCuad[0] != "END":
         elif(valTipo == "triangulo"):
             #Generar vertices de acuerdo a lo ingresado por el usuario
             bT = sqrt((valMedida * valMedida) - ((valMedida * valMedida)/4));
-            A = (valPosX - (valMedida/2), valPosY - (bT/2));
-            B = (valPosX + (valMedida/2), valPosY - (bT/2));
-            C = (valPosX, valPosY + (bT/2));
+            A = (-(valMedida/2), - (bT/2));
+            B = (+ (valMedida/2), - (bT/2));
+            C = (0, + (bT/2));
 
             trianguloForma = pymunk.Poly(None, (A,B,C));
 
             trianguloMomento = pymunk.moment_for_poly(valMasa,trianguloForma.get_vertices());
 
-            trianguloCuerpo = pymunk.Body(valMasa,trianguloMomento, valMovible);
+            trianguloCuerpo = pymunk.Body(valMasa,trianguloMomento,valMovible);
 
             trianguloForma.friction = valFriccion; #Coeficiente de friccion de 0.0 a 1.0
             trianguloCuerpo.position = valPosX, valPosY;
             trianguloForma.body = trianguloCuerpo;
             trianguloForma.color = colores[valColor];
-
+            trianguloForma.elasticity = valRebote;
             espacio.add(trianguloCuerpo, trianguloForma);
 
 
 
         else: #circulo
-            circuloMomento = pymunk.moment_for_circle(valMasa, 0, valMedida);
+            circuloMomento = pymunk.moment_for_circle(valMasa, 0, valMedida/2);
             circuloCuerpo = pymunk.Body(valMasa, circuloMomento);
             circuloCuerpo.position = valPosX, valPosY;
             circuloForma = pymunk.Circle(circuloCuerpo, valMedida);
             circuloForma.color = colores[valColor];
-            circuloForma.friction = valFriccion
+            circuloForma.friction = valFriccion;
+            circuloForma.elasticity = valRebote;
             espacio.add(circuloCuerpo, circuloForma);
 
         iApuntadorCuads += 1;
@@ -925,12 +935,29 @@ while tempCuad[0] != "END":
             print("Debug error: valColor no tiene valor");
             break;
 
-        lineaMomento = pymunk.moment_for_segment(valMasa, (valPosX1, valPosY1), (valPosX2, valPosY2), 2);
-        lineaCuerpo = pymunk.Body = pymunk.Body(valMasa, lineaMomento);
-        lineaForma = pymunk.Segment(lineaCuerpo,(valPosX1, valPosY1), (valPosX2, valPosY2), 2);
+        if(valMovible):
+            valMovible = pymunk.Body.DYNAMIC;
+        else:
+            valMovible = pymunk.Body.STATIC;
+
+
+        if(valFriccion > 1):
+            valFriccion = 1.0;
+        elif(valFriccion < 0):
+            valFriccion = 0.0;
+
+        if(valRebote > 1):
+            valRebote = 1.0;
+        elif(valRebote < 0):
+            valRebote = 0.0;
+
+        lineaMomento = pymunk.moment_for_segment(valMasa, (valPosX1, valPosY1), (valPosX2, valPosY2), valMedida);
+        lineaCuerpo = pymunk.Body(valMasa, lineaMomento,valMovible);
+        lineaForma = pymunk.Segment(lineaCuerpo,(valPosX1, valPosY1), (valPosX2, valPosY2), valMedida);
         lineaForma.color = colores[valColor];
         lineaCuerpo.position = valPosX, valPosY;
-
+        lineaForma.friction = valFriccion;
+        lineaForma.elasticity = valRebote;
         espacio.add(lineaCuerpo, lineaForma);
 
         iApuntadorCuads += 2;

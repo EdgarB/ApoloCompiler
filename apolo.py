@@ -13,7 +13,7 @@ from classes.tablaSimbolos import SimboloFigura
 from classes.pila import Pila
 from classes.MemoriaDisponible import MemoriaDisponible
 from collections import OrderedDict
-
+lineaActual = 1;
 reserved = {
     'entero' : 'ENTERO',
     'flotante' : 'FLOTANTE',
@@ -231,13 +231,16 @@ def t_LESS_THAN(t):
 # Define a rule so we can track line numbers
 def t_newline(t):
     r'\n+'
+    global lineaActual;
+    lineaActual += 1;
     t.lexer.lineno += 1;
 
 # Error handling rule
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
-    print(t);
-    t.lexer.skip(1)
+    global lineaActual;
+    print("caracter ilegal" ,t.value[0], "en linea",lineaActual);
+    sys.exit();
+    #t.lexer.skip(1)
 ################################################################################
 ################################################################################
 
@@ -489,7 +492,8 @@ indices  -> cubo - 1
 def imprimirError(error, linea):
     global idActual;
     global alcanceActual;
-
+    global lineaActual;
+    linea = lineaActual;
     if(linea is not None):
         print("Error en linea " + str(linea) + ":");
     else:
@@ -680,10 +684,10 @@ def p_programa(t):
 
     listaDeCuadruplos.append(["END",None, None,None])
     contadorCuadruplos +=1;
-    imprimirContenidoTablaSimbolos(tablaDeSimbolos);
-    print("Cant cuads (real) -> " + str(len(listaDeCuadruplos)));
-    print("Cant cuads (contador) -> " + str(contadorCuadruplos));
-    print("Programa compilado correctamente");
+    #imprimirContenidoTablaSimbolos(tablaDeSimbolos);
+    #print("Cant cuads (real) -> " + str(len(listaDeCuadruplos)));
+    #print("Cant cuads (contador) -> " + str(contadorCuadruplos));
+    #print("Programa compilado correctamente");
 
 def p_variablesAuxiliar(t):
     '''
@@ -3202,12 +3206,15 @@ def p_operadorO(t):
 #     ERROR     ################################################################
 
 def p_error(p):
+    global lineaActual;
     if p:
-         print("Syntax error at token", p.type )
+         print("Error de sintaxis en",p.value,", linea",lineaActual);
+         sys.exit();
          # Just discard the token and tell the parser it's okay.
-         parser.errok()
+         #parser.errok()
     else:
-         print("Syntax error at EOF")
+         print("Error de sintaxis al final del archivo");
+         sys.exit();
 
 #     VACIO     ################################################################
 def p_empty(p):
@@ -3230,12 +3237,13 @@ if __name__ == '__main__':
 
     parser.parse(informacion,);
     cont = 0
+    """
     for element in listaDeCuadruplos:
         print(str(cont) + " ", element);
         cont += 1;
     for key in tablaMemCte:
         print(str(key) +  " : " +str(tablaMemCte[key]));
-
+    """
     cuadsFile = open('cuad.o', 'w');
     for element in listaDeCuadruplos:
 
