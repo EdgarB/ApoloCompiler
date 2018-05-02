@@ -1018,7 +1018,7 @@ def p_compSemYGenCuadYO(t):
                 cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
                 indiceTemporal += 1;
                 listaDeCuadruplos.append(cuadruplo);
-                pilaOperandos.push(indiceTemporal-1);
+                pilaOperandos.push(indiceTemporal - 1);
                 tipoResultado = traductorValoresCubo[tipoResultado];
                 pilaTipos.push(tipoResultado);
                 contadorTemporales += 1;
@@ -2611,20 +2611,9 @@ def p_dibujarAuxiliar1(t):
 #     CICLO     ################################################################
 def p_ciclo(t):
   '''
-  ciclo : CICLO L_PAREN agregarPisoFalso cicloAuxiliar1 eliminarPisoFalso SEMICOLON agregarAPilaSaltosRegresoCiclo agregarPisoFalso expresion eliminarPisoFalso SEMICOLON generarCuadCondCiclo agregarPisoFalso cicloAuxiliar2 eliminarPisoFalso R_PAREN bloque generarCuadRetCiclo
+  ciclo : CICLO L_PAREN agregarPisoFalso asignacion eliminarPisoFalso SEMICOLON agregarAPilaSaltosRegresoCiclo agregarPisoFalso expresion eliminarPisoFalso SEMICOLON generarCuadCondCiclo agregarPisoFalso incremento eliminarPisoFalso R_PAREN bloque generarCuadRetCiclo
   '''
 
-def p_cicloAuxiliar1(t):
-    '''
-    cicloAuxiliar1 : asignacion
-    | empty
-    '''
-
-def p_cicloAuxiliar2(t):
-    '''
-    cicloAuxiliar2 : incremento
-    | empty
-    '''
 #     CONDICION     ###########################################################
 def p_condicion(t):
   '''
