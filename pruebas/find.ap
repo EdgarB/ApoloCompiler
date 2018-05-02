@@ -1,0 +1,30 @@
+programa find;
+variables
+    lista entero[10] liGlobal;
+funciones
+
+entero find(entero elem){
+    variables entero i;
+    ciclo(i = -1; i < 9; i+=1){
+
+        si(liGlobal[i] == elem){
+            regresar i;
+        };
+    }
+    regresar -1;
+}
+
+
+apolo{
+    variables
+        entero iResultado, iResultado2;
+
+    liGlobal = [0,1,2,3,4,5,6,7,8,9];
+
+    iResultado = find(2);
+    imprimir("Resultado encontro en: ", iResultado);
+
+    iResultado = find(10);
+    imprimir("Resultado no encontrado: ", iResultado);
+
+}

@@ -1,0 +1,42 @@
+programa factorial;
+
+
+funciones
+
+entero factorialRec(entero i){
+
+    si(i < 2){
+        regresar 1;
+    }sino{
+        regresar i * factorialRec(i-1);
+    };
+
+}
+
+entero factorialIt(entero i){
+    variables entero iCont, iT;
+    si (i < 2){
+        regresar 1;
+    };
+
+
+
+    iT = 1;
+    ciclo(iCont = 1;iCont < i; iCont+= 1){
+        iT = iCont * iT;
+    }
+    regresar iT;
+
+}
+apolo{
+    variables
+        entero iResultado, iResultado2;
+
+
+    iResultado = factorialRec(10);
+    imprimir("Resultado recursivo: ", iResultado);
+
+    iResultado2 = factorialIt(10);
+    imprimir("Resultado iterativo: ", iResultado2);
+
+}

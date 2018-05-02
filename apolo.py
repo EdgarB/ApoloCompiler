@@ -2,6 +2,7 @@ import sys;
 import os;
 import ply.yacc as yacc;
 import ply.lex as lex;
+import collections;
 from classes.tablaSimbolos import TablaSimbolos
 from classes.tablaSimbolos import SimboloVariable
 from classes.tablaSimbolos import SimboloFuncion
@@ -11,8 +12,6 @@ from classes.tablaSimbolos import SimboloVariable
 from classes.tablaSimbolos import SimboloFuncion
 from classes.tablaSimbolos import SimboloFigura
 from classes.pila import Pila
-from classes.MemoriaDisponible import MemoriaDisponible
-from collections import OrderedDict
 lineaActual = 1;
 reserved = {
     'entero' : 'ENTERO',
@@ -272,7 +271,7 @@ listaDeCuadruplos = [];
 pilaOperandos = Pila();
 pilaOperadores = Pila();
 pilaTipos = Pila();
-memRegistros = MemoriaDisponible();
+
 signoActual = None;
 
 #Condiciones
@@ -287,7 +286,7 @@ contadorTemporales  = 0;
 liCuadsLlamadasRec = [];
 
 #Constantes y direcciones de Memoria
-tablaMemCte = OrderedDict();
+tablaMemCte = collections.OrderedDict();
 #DIRECCIONS MEMORIA
 # 1000 - 20999 -> Global
 indiceGlobal = 1000;
@@ -356,102 +355,106 @@ traductorIndicesOperadoresCubo = {
     ">" : 7,
     "<" : 8,
     "==" : 9,
-    "!=" : 10
+    "!=" : 10,
+    "<=" : 11,
+    ">=" : 12,
+    "&&" : 13,
+    "||" : 14
 }
 
 # [tipo][tipo][operador] = tipo retorno
 cuboSemantico = [
         [
-            [1, 1, 1, 2, 9, 9, 9, 4, 4, 4, 4],
-            [2, 2, 2, 2, 9, 9, 9, 4, 4, 4, 4],
-            [0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [1, 1, 1, 2, 9, 9, 9, 4, 4, 4, 4, 4, 4, 0, 0],
+            [2, 2, 2, 2, 9, 9, 9, 4, 4, 4, 4, 4, 4, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         ],
         [
-            [2, 2, 2, 2, 9, 9, 9, 4, 4, 4, 4],
-            [2, 2, 2, 2, 9, 9, 9, 4, 4, 4, 4],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [2, 2, 2, 2, 9, 9, 9, 4, 4, 4, 4, 4, 4, 0, 0],
+            [2, 2, 2, 2, 9, 9, 9, 4, 4, 4, 4, 4, 4, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ],
         [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [3, 0, 0, 0, 3, 0, 9, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [3, 0, 0, 0, 3, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ],
         [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 9, 4, 4, 4, 4],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 9, 4, 4, 4, 4, 0, 0, 4, 4],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ],
         [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ],
         [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ],
         [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ],
         [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         ],
         [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         ]
 
@@ -798,7 +801,6 @@ def p_compSemMasMenosYGenCuad(t):
     global pilaOperadores;
     global pilaTipos;
     global cuboSemantico;
-    global memRegistros;
     global listaDeCuadruplos;
     global contadorCuadruplos;
     global indiceTemporal;
@@ -856,7 +858,6 @@ def p_comprobarSemanticaPorEntre(t):
     global pilaOperadores;
     global pilaTipos;
     global cuboSemantico;
-    global memRegistros;
     global listaDeCuadruplos;
     global contadorCuadruplos;
     global indiceTemporal;
@@ -931,7 +932,6 @@ def p_comprobarSemanticaOperadoresRelacionales(t):
     global pilaOperadores;
     global pilaTipos;
     global cuboSemantico;
-    global memRegistros;
     global listaDeCuadruplos;
     global contadorCuadruplos;
     global indiceTemporal;
@@ -988,7 +988,6 @@ def p_compSemYGenCuadYO(t):
     global pilaOperadores;
     global pilaTipos;
     global cuboSemantico;
-    global memRegistros;
     global listaDeCuadruplos;
     global contadorCuadruplos;
     global indiceTemporal;
@@ -1019,7 +1018,7 @@ def p_compSemYGenCuadYO(t):
                 cuadruplo = [operador, operandoIzquierdo, operandoDerecho, indiceTemporal];
                 indiceTemporal += 1;
                 listaDeCuadruplos.append(cuadruplo);
-                pilaOperandos.push(resultado);
+                pilaOperandos.push(indiceTemporal-1);
                 tipoResultado = traductorValoresCubo[tipoResultado];
                 pilaTipos.push(tipoResultado);
                 contadorTemporales += 1;
@@ -1439,7 +1438,7 @@ def p_generarCuadCondicionGotoFIf(t):
     else:
 
         #Imprimir error de type missmatch
-        print("generarCuadCondicionGotoFIf : 1412");
+        #print("generarCuadCondicionGotoFIf : 1412");
         imprimirError(10, None);
 
 #2
@@ -1571,7 +1570,7 @@ def p_genCuadRetorno(t):
             resultado = pilaOperandos.top();
             pilaOperandos.pop();
             #("TIPO FUNCION -> " + str(tipoRes) + " - " + str(resultado));
-            cuad = ["=", resultado, None, dirValorGlobalFunc];
+            cuad = ["regresar", resultado, None, dirValorGlobalFunc];
             listaDeCuadruplos.append(cuad);
             contadorCuadruplos += 1;
         else:
@@ -1979,9 +1978,9 @@ def p_agregaFuncTabla(t):
     global longLista;
     global limMemLocal;
     global limMemGlobal;
-    simboloFunc = tablaDeSimbolos.obtener("global");
-    tablaDeSimbolos.insertar(SimboloFuncion(idActual, tipoActual, contadorCuadruplos));
 
+    tablaDeSimbolos.insertar(SimboloFuncion(idActual, tipoActual, contadorCuadruplos));
+    simboloFunc = tablaDeSimbolos.obtener("global");
     if(simboloFunc == None):
 
         imprimirError(1, None);
@@ -2612,9 +2611,20 @@ def p_dibujarAuxiliar1(t):
 #     CICLO     ################################################################
 def p_ciclo(t):
   '''
-  ciclo : CICLO L_PAREN agregarPisoFalso asignacion eliminarPisoFalso SEMICOLON agregarAPilaSaltosRegresoCiclo agregarPisoFalso expresion eliminarPisoFalso SEMICOLON generarCuadCondCiclo agregarPisoFalso incremento eliminarPisoFalso R_PAREN bloque generarCuadRetCiclo
+  ciclo : CICLO L_PAREN agregarPisoFalso cicloAuxiliar1 eliminarPisoFalso SEMICOLON agregarAPilaSaltosRegresoCiclo agregarPisoFalso expresion eliminarPisoFalso SEMICOLON generarCuadCondCiclo agregarPisoFalso cicloAuxiliar2 eliminarPisoFalso R_PAREN bloque generarCuadRetCiclo
   '''
 
+def p_cicloAuxiliar1(t):
+    '''
+    cicloAuxiliar1 : asignacion
+    | empty
+    '''
+
+def p_cicloAuxiliar2(t):
+    '''
+    cicloAuxiliar2 : incremento
+    | empty
+    '''
 #     CONDICION     ###########################################################
 def p_condicion(t):
   '''
@@ -2986,7 +2996,7 @@ def p_factorAuxiliar4(t):
 #     LISTA CONSTANTE     ######################################################
 def p_lista_cte(t):
   '''
-  lista_cte : reiniciarContadorIndices L_BRACKETS  lista_cteAuxiliar1 comprobarTipoElem lista_cteAuxiliar2 R_BRACKETS p_sacarListaPilaOperandos
+  lista_cte : reiniciarContadorIndices L_BRACKETS  lista_cteAuxiliar1 comprobarTipoElem lista_cteAuxiliar2 R_BRACKETS sacarListaPilaOperandos
   '''
   t[0] = [];
 
@@ -3079,7 +3089,7 @@ def p_reiniciarContadorIndices(t):
 
 def p_sacarListaPilaOperandos(t):
     '''
-    p_sacarListaPilaOperandos : empty
+    sacarListaPilaOperandos : empty
     '''
     global pilaOperandos;
     global pilaTipos;
@@ -3213,7 +3223,7 @@ def p_error(p):
          # Just discard the token and tell the parser it's okay.
          #parser.errok()
     else:
-         print("Error de sintaxis al final del archivo");
+         print("Error de sintaxis al final del archivo. Linea", lineaActual);
          sys.exit();
 
 #     VACIO     ################################################################

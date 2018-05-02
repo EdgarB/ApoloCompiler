@@ -1,0 +1,55 @@
+programa fibonacci;
+
+
+funciones
+
+entero fibonacciRec(entero i){
+    variables entero iTemp;
+
+    si(i < 1){
+        regresar 0;
+    }sino{
+        si(i < 3){
+            regresar 1;
+        }sino{
+            iTemp = fibonacciRec(i-1) + fibonacciRec(i-2);
+            regresar iTemp;
+        };
+    };
+
+}
+
+entero fibonacciIt(entero i){
+    variables entero iT1, iT2, iCont, iResultado;
+
+    si (i < 0){
+        regresar 0;
+    };
+
+    si (i < 3){
+        regresar 1;
+    };
+    iT1 = 1;
+    iT2 = 1;
+
+    ciclo(iCont = 2; iCont < i; iCont+= 1){
+
+        iResultado = iT1 + iT2;
+        iT2 = iT1;
+        iT1 =iResultado;
+    }
+    regresar iResultado;
+
+}
+apolo{
+    variables
+        entero iResultado, iResultado2;
+
+
+    iResultado = fibonacciRec(10);
+    imprimir("Resultado recursivo: ", iResultado);
+
+    iResultado2 = fibonacciIt(10);
+    imprimir("Resultado iterativo: ", iResultado2);
+
+}

@@ -1,0 +1,26 @@
+programa multListas;
+variables
+    lista entero[10] liGlobal1;
+    lista entero[10] liGlobal2;
+    lista entero[10] liResultado;
+
+
+
+apolo{
+    variables
+        entero  i;
+
+    liGlobal1 = [0,1,2,3,4,5,6,7,8,9];
+    liGlobal2 = [0,1,2,3,4,5,6,7,8,9];
+
+    ciclo(i = -1; i < 9; i+=1){
+        liResultado[i] = liGlobal1[i] * liGlobal2[i];
+    }
+
+    imprimir("Resultado:");
+    ciclo(i=-1; i < 9; i+=1){
+        imprimir(liResultado[i]);
+    }
+
+
+}

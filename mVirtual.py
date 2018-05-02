@@ -961,6 +961,28 @@ while tempCuad[0] != "END":
         espacio.add(lineaCuerpo, lineaForma);
 
         iApuntadorCuads += 2;
+    elif(instruccion == "regresar"):
+
+        indOperando1 = tempCuad[1];
+
+        indResultado = tempCuad[3];
+
+        operando1 = getValor(indOperando1);
+
+        if operando1 == None:
+            print("Error: Operando derecho del operador regresar no tiene valor.")
+            break;
+
+        setValor(indResultado, operando1);
+
+        liMemTemporal = liMemTemporal[0 : pilaMemoriaTempLim.top()[0]];
+        #print("Pila mem local top: " + str(pilaMemoriaLocalLim.top()[0]));
+        liMemLocal = liMemLocal[0 : pilaMemoriaLocalLim.top()[0]];
+        pilaMemoriaLocalLim.pop();
+        pilaMemoriaTempLim.pop();
+        iApuntadorCuads = pilaEstadosCuad.top();
+        pilaEstadosCuad.pop();
+
 
 
     tempCuad = liCuadruplos[iApuntadorCuads];
