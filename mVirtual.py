@@ -599,8 +599,7 @@ while tempCuad[0] != "END":
         indOperando1 = tempCuad[1];
 
         indResultado = tempCuad[3];
-        print(indOperando1);
-        print(tempCuad);
+
         operando1 = getValor(indOperando1);
 
         if operando1 == None:

@@ -4,70 +4,74 @@ variables lista entero[11] liGlobal;
 funciones
 
 
-void merge(entero l, entero m, entero r)
+void merge(entero indiceInf, entero indiceMedio, entero indiceFinal)
 {
-    variables entero i,j,k,n1,n2, iB;
-        lista entero[100]L, R;
+    variables entero i,j,k,tamLiIzq,tamLiDer;
+        lista entero[100] liTempIzq, liTempDer;
 
-    n1 = m - l + 1;
-    n2 =  r - m;
+    tamLiIzq = indiceMedio - indiceInf + 1;
+    tamLiDer =  indiceFinal - indiceMedio;
 
 
-    ciclo (i = -1; i < n1 - 1; i+=1){
-        L[i] = liGlobal[l + i];
+    ciclo (i = -1; i < tamLiIzq - 1; i+=1){
+        liTempIzq[i] = liGlobal[indiceInf + i];
     }
 
-    ciclo(i = -1; j < n2 - 1; j+=1){
-        R[j] = liGlobal[m + 1+ j];
+    ciclo(j = -1; j < tamLiDer - 1; j+=1){
+        liTempDer[j] = liGlobal[indiceMedio + 1+ j];
     }
 
     i = 0;
     j = 0;
-    k = l;
-    ciclo (iB=0;i < n1 && j < n2;iB+=1)
+    k = indiceInf;
+
+    ciclo (;i < tamLiIzq && j < tamLiDer;)
     {
-        si (L[i] <= R[j])
+
+        si (liTempIzq[i] <= liTempDer[j])
         {
-            liGlobal[k] = L[i];
+            liGlobal[k] = liTempIzq[i];
             i+=1;
         }
         sino
         {
-            liGlobal[k] = R[j];
+            liGlobal[k] = liTempDer[j];
             j+=1;
         };
         k+=1;
     }
 
 
-    ciclo (iB=0;i < n1;iB+=1)
+
+    ciclo (;i < tamLiIzq;)
     {
-        liGlobal[k] = L[i];
+        liGlobal[k] = liTempIzq[i];
         i+=1;
         k+=1;
     }
 
-    ciclo (iB=0;j < n2;iB+=1)
+    ciclo (;j < tamLiDer;)
     {
-        liGlobal[k] = R[j];
+        liGlobal[k] = liTempDer[j];
         j+=1;
         k+=1;
     }
+
 }
 
 
-void mergeSort( entero l, entero r){
-    variables entero m;
-    si (l < r)
+void mergeSort( entero indiceInf, entero indiceSup){
+    variables entero indiceMedio;
+    si (indiceInf < indiceSup)
     {
 
-        m = l+(r-l)/2;
+        indiceMedio = indiceInf+(indiceSup-indiceInf)/2;
 
 
-        mergeSort(l, m);
-        mergeSort(m+1, r);
+        mergeSort(indiceInf, indiceMedio);
+        mergeSort(indiceMedio+1, indiceSup);
 
-        merge(l, m, r);
+        merge(indiceInf, indiceMedio, indiceSup);
     };
 }
 
@@ -76,7 +80,7 @@ apolo{
         entero i;
 
     liGlobal = [2,31,32,44,1,4,0,12,3,90];
-    imprimir(liGlobal[9]);
+
     mergeSort(0,9);
     imprimir("Resultado:");
     ciclo(i=-1;i< 9; i+=1){
