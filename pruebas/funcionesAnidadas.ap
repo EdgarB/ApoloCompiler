@@ -1,0 +1,16 @@
+programa programa5;
+
+funciones
+
+    void funcionAnidada(){
+        imprimir("Estoy en la funcion anidada");
+    }
+
+    void funcionInicial(){
+        imprimir("Estoy en la funcion inicial");
+        funcionAnidada();
+    }
+
+apolo{
+    funcionInicial();
+}

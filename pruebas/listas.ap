@@ -1,0 +1,20 @@
+programa programa7;
+
+variables
+    lista entero[10] listaEnteraGlobal;
+
+apolo{
+
+    listaEnteraGlobal = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+    imprimir(listaEnteraGlobal[0] + 1);
+    imprimir(listaEnteraGlobal[1] * 2);
+    imprimir(listaEnteraGlobal[2]);
+    imprimir(listaEnteraGlobal[3] + 4);
+    imprimir(listaEnteraGlobal[4] - listaEnteraGlobal[9]);
+    imprimir(listaEnteraGlobal[5] * 10);
+    imprimir(listaEnteraGlobal[6] + listaEnteraGlobal[7]);
+    imprimir(listaEnteraGlobal[7] - listaEnteraGlobal[4]);
+    imprimir(listaEnteraGlobal[8]);
+    imprimir(listaEnteraGlobal[9] + listaEnteraGlobal[9]);
+}

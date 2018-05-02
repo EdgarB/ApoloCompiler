@@ -687,7 +687,7 @@ def p_programa(t):
 
     listaDeCuadruplos.append(["END",None, None,None])
     contadorCuadruplos +=1;
-    imprimirContenidoTablaSimbolos(tablaDeSimbolos);
+    #imprimirContenidoTablaSimbolos(tablaDeSimbolos);
     #print("Cant cuads (real) -> " + str(len(listaDeCuadruplos)));
     #print("Cant cuads (contador) -> " + str(contadorCuadruplos));
     #print("Programa compilado correctamente");
@@ -1673,7 +1673,7 @@ def p_generarAccionParam(t):
          imprimirError(11, None);
     elif(argTipo != paramTipo):
         #Error type missmatch
-        print("generarAccionParam - 1634")
+
         imprimirError(10, None);
 
     else:
@@ -2211,7 +2211,7 @@ def p_gravedad(t):
 #     FUNCIONES     ############################################################
 def p_funciones(t):
   '''
-  funciones : funcionesAuxiliar1 ID asignarAlcance agregaFuncTabla creaTablaVar L_PAREN tipo ID agregaParamFunc funcionesAuxiliar2 R_PAREN L_BRACES  funcionesAuxiliar3 funcionesAuxiliar4 R_BRACES liberaTablaVars funcionesAuxiliar5
+  funciones : funcionesAuxiliar1 ID asignarAlcance agregaFuncTabla creaTablaVar L_PAREN funcionesAuxiliar7 R_PAREN L_BRACES  funcionesAuxiliar3 funcionesAuxiliar4 R_BRACES liberaTablaVars funcionesAuxiliar5
   '''
 def p_funcionesAuxiliar1(t):
     '''
@@ -2254,7 +2254,11 @@ def p_funcionesAuxiliar5(t):
     | empty
     '''
 
-
+def p_funcionesAuxiliar7(t):
+    '''
+    funcionesAuxiliar7 : empty
+    | tipo ID agregaParamFunc funcionesAuxiliar2
+    '''
 
 #     FIGURAS     ##############################################################
 def p_figuras(t):

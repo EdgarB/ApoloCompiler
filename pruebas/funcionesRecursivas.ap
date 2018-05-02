@@ -1,0 +1,28 @@
+programa programa4;
+
+funciones
+    void sumatoriaRecursiva(flotante fVariable){
+
+
+        si( fVariable > 0){
+            imprimir(fVariable);
+            sumatoriaRecursiva(fVariable - 1.0);
+        };
+    }
+
+    void decrementoRecursivo(entero eVariable){
+        si(eVariable != 0){
+            imprimir(eVariable);
+
+            sumatoriaRecursiva(eVariable - 1.0);
+        };
+    }
+
+
+
+apolo{
+
+    decrementoRecursivo(10);
+    imprimir("-----");
+    sumatoriaRecursiva(15.0);
+}

@@ -1,0 +1,5 @@
+programa programa1;
+
+apolo{
+    imprimir("Hola, Apolo!");
+}

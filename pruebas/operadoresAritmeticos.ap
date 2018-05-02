@@ -1,0 +1,25 @@
+programa programa2;
+
+variables
+entero eVariable1, eVariable2;
+flotante fVariable;
+texto tVariable;
+booleano bVariable;
+
+apolo{
+
+    eVariable1 = 10;
+    eVariable2 = eVariable1 * 5;
+
+    fVariable = 3.0 * eVariable2;
+
+    tVariable = "Operaciones aritmeticas:";
+
+    bVariable = verdadero;
+
+    imprimir(tVariable);
+    imprimir(eVariable1);
+    imprimir(eVariable2);
+    imprimir(fVariable);
+    imprimir(bVariable);
+}
