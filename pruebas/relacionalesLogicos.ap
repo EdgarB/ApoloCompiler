@@ -1,0 +1,38 @@
+programa programa8;
+
+variables
+    booleano bVar1, bVar2;
+    lista entero[10] listaEnteraGlobal;
+    entero i;
+
+apolo{
+
+    bVar1 = verdadero;
+    bVar2 = verdadero;
+    listaEnteraGlobal = [10, 20, 5, 15, 30, 25, 45, 35, 40, 50];
+
+    si(bVar1 == bVar2){
+        imprimir("Si, son iguales las variables");
+    }sino{
+        imprimir("No, no son iguales las variables");
+    };
+
+    ciclo(i = -1; i < 9; i += 1){
+
+        si(listaEnteraGlobal[i] > 25){
+            imprimir("Mayor");
+        };
+
+        si(listaEnteraGlobal[i] < 25){
+            imprimir("Menor");
+        };
+
+        si(listaEnteraGlobal[i] == 25){
+            imprimir("Igual");
+        };
+    }
+
+    si(5>2 && 3< 9){
+        imprimir("Si");
+    };
+}

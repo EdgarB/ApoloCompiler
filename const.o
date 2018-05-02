@@ -1,16 +1,23 @@
+True
+10
+20
+5
+15
+30
+25
+45
+35
+40
+50
+"Si, son iguales las variables"
+"No, no son iguales las variables"
 1
 -1
-21008
-1000
-21108
-0
-2
-31
-32
-44
-4
-12
-3
-90
 9
-"Resultado:"
+1002
+"Mayor"
+"Menor"
+"Igual"
+2
+3
+"Si"

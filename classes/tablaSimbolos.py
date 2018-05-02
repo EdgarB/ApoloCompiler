@@ -68,7 +68,7 @@ class SimboloFuncion(Simbolo):
         self.cantTemp = 0;
         self.procComienzo = comienzo;
         self.valorRetorno = None;
-
+        self.tieneRetorno = False;
 
 
 class SimboloFigura(Simbolo):

@@ -1,12 +1,12 @@
 programa prueba;
-variables lista entero[10] liGlobal;
+variables lista entero[11] liGlobal;
 
 funciones
 
 
 void merge(entero l, entero m, entero r)
 {
-    variables entero i,j,k,n1,n2;
+    variables entero i,j,k,n1,n2, iB;
         lista entero[100]L, R;
 
     n1 = m - l + 1;
@@ -24,7 +24,7 @@ void merge(entero l, entero m, entero r)
     i = 0;
     j = 0;
     k = l;
-    ciclo (;i < n1 && j < n2;)
+    ciclo (iB=0;i < n1 && j < n2;iB+=1)
     {
         si (L[i] <= R[j])
         {
@@ -40,14 +40,14 @@ void merge(entero l, entero m, entero r)
     }
 
 
-    ciclo (;i < n1;)
+    ciclo (iB=0;i < n1;iB+=1)
     {
         liGlobal[k] = L[i];
         i+=1;
         k+=1;
     }
 
-    ciclo (;j < n2;)
+    ciclo (iB=0;j < n2;iB+=1)
     {
         liGlobal[k] = R[j];
         j+=1;
@@ -76,6 +76,7 @@ apolo{
         entero i;
 
     liGlobal = [2,31,32,44,1,4,0,12,3,90];
+    imprimir(liGlobal[9]);
     mergeSort(0,9);
     imprimir("Resultado:");
     ciclo(i=-1;i< 9; i+=1){

@@ -687,7 +687,7 @@ def p_programa(t):
 
     listaDeCuadruplos.append(["END",None, None,None])
     contadorCuadruplos +=1;
-    #imprimirContenidoTablaSimbolos(tablaDeSimbolos);
+    imprimirContenidoTablaSimbolos(tablaDeSimbolos);
     #print("Cant cuads (real) -> " + str(len(listaDeCuadruplos)));
     #print("Cant cuads (contador) -> " + str(contadorCuadruplos));
     #print("Programa compilado correctamente");
@@ -1589,6 +1589,8 @@ def p_checarRetorno(t):
     varFunc = tablaDeSimbolos.obtener(alcanceActual);
     if(varFunc.tipo == "void"):
         imprimirError(12);
+    else:
+        varFunc.tieneRetorno = True;
 
 
 def p_agregarOperadorRetorno(t):
@@ -1706,7 +1708,7 @@ def p_generarAccionGoSub(t):
         listaDeCuadruplos.append(cuad);
 
 
-        if(var.tipo != "void"):
+        if(var.tipo != "void" and apuntadorFuncion.tieneRetorno):
             if(indiceTemporal < limMemTemporal):
                 pilaOperandos.push(indiceTemporal);
                 pilaTipos.push(var.tipo);
@@ -2214,13 +2216,19 @@ def p_funciones(t):
 def p_funcionesAuxiliar1(t):
     '''
     funcionesAuxiliar1 : tipo
-    | VOID
+    | funcionesAuxiliar6
     '''
     global indiceTemporal;
     global indiceLocal;
+
     indiceTemporal = 41000;
     indiceLocal = 21000;
-
+def p_funcionesAuxiliar6(t):
+    '''
+    funcionesAuxiliar6 : VOID
+    '''
+    global tipoActual;
+    tipoActual = "void";
 def p_funcionesAuxiliar2(t):
   '''
   funcionesAuxiliar2 :  COMMA tipo ID agregaParamFunc funcionesAuxiliar2
@@ -2611,8 +2619,18 @@ def p_dibujarAuxiliar1(t):
 #     CICLO     ################################################################
 def p_ciclo(t):
   '''
-  ciclo : CICLO L_PAREN agregarPisoFalso asignacion eliminarPisoFalso SEMICOLON agregarAPilaSaltosRegresoCiclo agregarPisoFalso expresion eliminarPisoFalso SEMICOLON generarCuadCondCiclo agregarPisoFalso incremento eliminarPisoFalso R_PAREN bloque generarCuadRetCiclo
+  ciclo : CICLO L_PAREN agregarPisoFalso cicloAuxiliar1 eliminarPisoFalso SEMICOLON agregarAPilaSaltosRegresoCiclo agregarPisoFalso expresion eliminarPisoFalso SEMICOLON generarCuadCondCiclo agregarPisoFalso cicloAuxiliar2 eliminarPisoFalso R_PAREN bloque generarCuadRetCiclo
   '''
+def p_cicloAuxiliar1(t):
+    '''
+    cicloAuxiliar1 : empty
+    | asignacion
+    '''
+def p_cicloAuxiliar2(t):
+    '''
+    cicloAuxiliar2 : empty
+    | incremento
+    '''
 
 #     CONDICION     ###########################################################
 def p_condicion(t):

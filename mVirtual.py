@@ -599,7 +599,8 @@ while tempCuad[0] != "END":
         indOperando1 = tempCuad[1];
 
         indResultado = tempCuad[3];
-
+        print(indOperando1);
+        print(tempCuad);
         operando1 = getValor(indOperando1);
 
         if operando1 == None:
@@ -955,7 +956,7 @@ while tempCuad[0] != "END":
         lineaCuerpo = pymunk.Body(valMasa, lineaMomento,valMovible);
         lineaForma = pymunk.Segment(lineaCuerpo,(valPosX1, valPosY1), (valPosX2, valPosY2), valMedida);
         lineaForma.color = colores[valColor];
-        lineaCuerpo.position = valPosX, valPosY;
+        lineaCuerpo.position = 0, 0;
         lineaForma.friction = valFriccion;
         lineaForma.elasticity = valRebote;
         espacio.add(lineaCuerpo, lineaForma);
